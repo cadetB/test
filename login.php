@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         $stmt->close();
     } elseif (isset($_POST['action']) && $_POST['action'] === "register") {
-        header("Location: register.php");
+        header("Location: index.php");
         exit();
     }
 }

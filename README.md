@@ -1,3 +1,23 @@
+# 소스 코드 제출양식 : github public 
+소스 코드와 작성한 프로그램을 제출합니다. 
+Github에 public 으로 업로드하세요.
+* 평가가 종료되면 private으로 변경하는 것을 권장합니다.
+접근가능한 링크를 공유해주세요.
+	
+# 최종 발표 동영상
+동영상은 여러분이 작성한 최종 프로젝트의 결과를 발표하는 자리입니다. 최종 발표는 기록 유지와 공유를 위해 동영상으로 대체합니다. 해당 동영상에는 아래와 같은 내용이 필수로 포함되어야 하며, 그외의 형식은 자유입니다. 
+프로그램의 제작 동기 (해결하고자 하는 문제)
+관련 소프트웨어 및 연구
+제안하는 소프트웨어가 문제를 해결하는 방법 (알고리즘)
+다른 소프트웨어 및 연구와의 차이점
+작성한 프로그램의 시연
+
+동영상 제작시 주의할 사항은 아래와 같습니다.
+동영상의 길이는 10분을 초과하지 않도록 합니다. 반대로 너무 짧지 않도록 유의해주세요.
+동영상은 본인의 유튜브 계정에 올려 링크를 공유해주기 바랍니다. 
+화질이 너무 떨어지지 않도록 해주세요.
+스마트 폰으로 화면을 촬영하는 방식으로 하면 영상의 질이 좋지 않습니다. 화면을 녹화(screen recording)해주세요. 여러가지 툴들이 있습니다.
+
 1. Setting Up the Server Environment -> mysql 
 # Update system packages
 sudo apt update && sudo apt upgrade -y %% sudo apt install nano -y (nano 편집기 -> vi 느낌)&& sudo apt install ufw -y (방화벽)
@@ -68,10 +88,18 @@ git init
 git add .
 git commit -m "messages blah blah"
 git remote add origin https://github.com/cadetB/test.git
+# 스테이지에 추가된 파일에 대한 master에 커밋하기 실행 (with message)
+# push 실패하면 다음 명령어를 터미널에서 실행 
 git push -u origin master
 git config --global user.name "cadetB"
  or git config --global user.email "your-email@example.com"
 Password for 'https://cadetB@github.com': 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
+
+1. 구름에서 작업 후 각 파일 저장
+2. 자동으로 스테이지에서 제외된 파일로 감
+3. + 눌러서 스테이지에 추가된 파일로 이동 
+4. commit 메시지 입력 후 master 에 커밋하기 
+5. commit 오류나면 명령어 실행 with token 
 =============================================================
 [V]K_view_records: 점수 입력칸 삭제(코드 수정 필요)
 [ ]기입 정보 엑셀 파일 저장 기능 추가(코드 수정 필요)
