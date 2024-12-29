@@ -1,7 +1,7 @@
 <?php
 session_start();
-session_unset();
-session_destroy();
+// 수정 session_unset();
+//  수정 session_destroy();   -> 12.30 01:17 이 두개 명령어 삭제하여 새로운 회원가입 가능 
 
 // CSRF 토큰 생성
 if (!isset($_SESSION['csrf_token'])) {
@@ -72,7 +72,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사용자 등록</title>
+    <title>회원가입</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         h1 { color: #4CAF50; }
@@ -85,7 +85,7 @@ $conn->close();
     </style>
 </head>
 <body>
-    <h1>사용자 등록</h1>
+    <h1>회원가입</h1>
     <?php if ($error_message): ?>
         <p class="error"><?php echo htmlspecialchars($error_message); ?></p>
     <?php endif; ?>

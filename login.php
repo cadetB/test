@@ -1,9 +1,11 @@
 <?php
 session_start();
-if (isset($_SESSION['student_id'])) {
-    header("Location: select_category.php");
-    exit;
-}
+// ───── 기존 자동 리다이렉트 삭제 또는 주석 처리 ─────
+//if (isset($_SESSION['student_id'])) {
+//    header("Location: select_category.php");
+//    exit;
+//} // 12.30 01:37 로그인 이후 지인용 입력하고 나서, 다시 index.php 로 이동하여 로그인 버튼 눌었을 때 자동 로그인되는 현상 방지 
+
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -144,7 +146,8 @@ $conn->close();
         }
     </style>
 </head>
-<body>
+<body>  
+<!-- 12.30 01:26 : 로그인 페이지에서 회원가입 페이지 index.php로 넘어갈 수 있게 수정 -->
     <div class="container">
         <h1>로그인</h1>
         <?php if ($error_message): ?>
@@ -157,9 +160,14 @@ $conn->close();
 
             <label for="password">비밀번호:</label>
             <input type="password" id="password" name="password" required>
-
+			
+			<div class="button-group">	
+            	<button type="submit" name="action" value="login">로그인</button>
+			</div>
+        </form>
+		<form method="POST" style="margin-top:20px;">
+			<input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <div class="button-group">
-                <button type="submit" name="action" value="login">로그인</button>
                 <button type="submit" name="action" value="register">회원가입</button>
             </div>
         </form>

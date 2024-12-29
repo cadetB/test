@@ -28,20 +28,24 @@ if ($conn->connect_error) {
 
 $message = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // CSRF 토큰 검증
+//12.30 01:45 ** submit_exam 버튼이 눌려야만 DB 저장 로직을 실행 **/
+
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_exam'])) {
+	// CSRF 토큰 검증
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
     }
-
-    $exam = $_POST['exam'];
-    $date = $_POST['date'];
-    $student_id = $_SESSION['student_id'];
-    $file_path = "";
-    $score = null;
+//12.30 01:45 
+    $student_id  = $_SESSION['student_id'];
+    $exam        = $_POST['exam']        ?? '';
+    $score       = null;
     $improvement = null;
-    $grade = null;
-    $details = null;
+    $grade       = null;
+    $details     = null;
+    $date        = $_POST['date']        ?? '';
+    $file_path   = "";
+    // 파일 업로드 처리
 
     if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
         $target_dir = "uploads/";
@@ -53,8 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $file_path = $target_file;
         }
     }
-
-    if ($exam === "토익" || $exam === "토익스피킹") {
+    // 시험 종류에 따라 값 분기/ //12.30 01:45 
+    /*if ($exam === "토익" || $exam === "토익스피킹") {
         $score = $_POST['score'];
         $improvement = $_POST['improvement'];
     } elseif ($exam === "HSK") {
@@ -64,12 +68,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif ($exam === "기타") {
         $details = $_POST['details'];
         $score = $_POST['score'];
+    }*/
+	if ($exam === "토익" || $exam === "토익스피킹") {
+        $score       = $_POST['score']       ?? '';
+        $improvement = $_POST['improvement'] ?? '';
+    } elseif ($exam === "HSK" || $exam === "JLPT") {
+        $grade = $_POST['grade'] ?? '';
+    } elseif ($exam === "기타") {
+        $score   = $_POST['score']   ?? '';
+        $details = $_POST['details'] ?? '';
     }
+	 // language_exams 테이블 구조: (id, student_id, exam, score, improvement, grade, details, date, file_path)
+    // id는 AUTO_INCREMENT이므로 제외하고 삽입.
+    $sql = "INSERT INTO language_exams (student_id, exam, score, improvement, grade, details, date, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-    $sql = "INSERT INTO language_exams (student_id, exam, date, score, improvement, grade, details, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssss", $student_id, $exam, $date, $score, $improvement, $grade, $details, $file_path);
-
+	$stmt = $conn->prepare($sql); //12.30 01:45
+    $stmt->bind_param("ssssssss",
+        $student_id,
+        $exam,
+        $score,
+        $improvement,
+        $grade,
+        $details,
+        $date,
+        $file_path
+    ); //12.30 01:45 
+	
     if ($stmt->execute()) {
         $message = "제출이 완료되었습니다.";
     } else {
@@ -184,7 +208,7 @@ $conn->close();
         <label for="file">증빙 자료:</label>
         <input type="file" id="file" name="file">
 
-        <input type="submit" value="제출">
+        <input type="submit" name="submit_exam" value="제출">
         <button type="button" class="button" onclick="location.href='select_category.php'">홈으로</button>
     </form>
     <?php } ?>

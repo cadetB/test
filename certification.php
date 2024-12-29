@@ -34,33 +34,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("CSRF 토큰 검증 실패");
     }
 
-    $certification = $_POST['certification'];
+    $certification = isset($_POST['certification']) ? trim($_POST['certification']) : ""; //  12.30 02:30 입력 값 확인 및 공백 제거
     $date = $_POST['date'];
     $student_id = $_SESSION['student_id'];
     
-    // 파일 업로드 처리
-    $file_path = "";
-    if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
-        $target_dir = "uploads/";
-        if (!is_dir($target_dir)) {
-            mkdir($target_dir, 0777, true);
-        }
-        $target_file = $target_dir . basename($_FILES["file"]["name"]);
-        if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
-            $file_path = $target_file;
-        }
-    }
-    
-    $sql = "INSERT INTO certifications (student_id, certification, date, file_path) VALUES (?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssss", $student_id, $certification, $date, $file_path);
-    
-    if ($stmt->execute()) {
-        $message = "제출이 완료되었습니다.";
-    } else {
-        $message = "Error: " . $stmt->error;
-    }
-    $stmt->close();
+	// 12.30 02:30 데이터 유효성 검사 추가
+	if (empty(trim($certification))) {
+        $error = "자격증 이름을 입력하세요."; // 수정된 부분: 에러 메시지 저장
+	} else{ 
+		$file_path = ""; // 파일 업로드 처리
+		if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
+			$target_dir = "uploads/";
+			if (!is_dir($target_dir)) {
+				mkdir($target_dir, 0777, true);
+			}
+			$target_file = $target_dir . basename($_FILES["file"]["name"]);
+			if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
+				$file_path = $target_file;
+				error_log("파일 업로드 성공: " . $file_path);
+
+			} else {
+        		error_log("파일 업로드 실패");
+    		}
+		} else {
+    		error_log("파일 업로드 오류 코드: " . $_FILES['file']['error']);	
+		}
+
+		$sql = "INSERT INTO certifications (student_id, certification, date, file_path) VALUES (?, ?, ?, ?)";
+		$stmt = $conn->prepare($sql);
+		$stmt->bind_param("ssss", $student_id, $certification, $date, $file_path);
+
+		error_log("SQL 실행: student_id=$student_id, certification=$certification, date=$date, file_path=$file_path");
+		if ($stmt->execute()) {
+			$message = "제출이 완료되었습니다.";
+		} else {
+			$message = "Error: " . $stmt->error;	
+			error_log("SQL 에러: " . $stmt->error);
+		}
+		$stmt->close();
+	}	   
+// Close the database connection to free up resources
 }
 
 $conn->close();
