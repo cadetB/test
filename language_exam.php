@@ -5,6 +5,11 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
+// CSRF 토큰 생성
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // MySQL 연결 설정
 $servername = "localhost";
 $username = "root";
@@ -13,7 +18,8 @@ $dbname = "GhHj";
 $port = 3306;
 
 // 데이터베이스 연결
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname, $port);
+$conn->set_charset("utf8mb4");
 
 // 연결 확인
 if ($conn->connect_error) {
@@ -23,6 +29,11 @@ if ($conn->connect_error) {
 $message = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // CSRF 토큰 검증
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("CSRF 토큰 검증 실패");
+    }
+
     $exam = $_POST['exam'];
     $date = $_POST['date'];
     $student_id = $_SESSION['student_id'];
@@ -60,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("ssssssss", $student_id, $exam, $date, $score, $improvement, $grade, $details, $file_path);
 
     if ($stmt->execute()) {
-        $message = "어학시험 정보가 성공적으로 저장되었습니다.";
+        $message = "제출이 완료되었습니다.";
     } else {
         $message = "Error: " . $stmt->error;
     }
@@ -72,8 +83,10 @@ $conn->close();
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>어학시험 정보 입력</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -93,6 +106,7 @@ $conn->close();
             border: none;
             border-radius: 15px;
             box-shadow: 0 5px #999;
+            margin-right: 10px;
         }
         input[type="submit"]:hover, .button:hover {background-color: #3e8e41}
         input[type="submit"]:active, .button:active {
@@ -120,6 +134,7 @@ $conn->close();
     } else {
     ?>
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         <label for="exam">항목:</label>
         <select id="exam" name="exam" onchange="handleExamChange()" required>
             <option value="">선택하세요</option>
@@ -163,13 +178,14 @@ $conn->close();
             <textarea id="details" name="details" rows="4"></textarea>
         </div>
 
-        <label for="date">응시일자:</label>
-        <input type="date" id="date" name="date" required>
+        <label for="date">응시일자 (YYYY-MM-DD):</label>
+        <input type="text" id="date" name="date" placeholder="YYYY-MM-DD" required>
 
         <label for="file">증빙 자료:</label>
         <input type="file" id="file" name="file">
 
         <input type="submit" value="제출">
+        <button type="button" class="button" onclick="location.href='select_category.php'">홈으로</button>
     </form>
     <?php } ?>
 </body>

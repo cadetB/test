@@ -5,60 +5,91 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-// MySQL 연결 설정
-$servername = "localhost";
-$username = "root";
-$password = "1234";
-$dbname = "GhHj";
-$port = 3306;
+// CSRF 토큰 생성
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
+// 오류 처리 함수
+function handleError($errno, $errstr) {
+    error_log("Error: [$errno] $errstr");
+    echo "<p style='color: red;'>죄송합니다. 오류가 발생했습니다.</p>";
+}
+
+set_error_handler("handleError");
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>지 분야 활동 입력</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #4CAF50; }
-        form { margin-top: 20px; }
-        label { display: block; margin-top: 10px; }
-        input[type="text"], input[type="date"], select { width: 300px; padding: 5px; }
-        input[type="submit"] { margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-    </style>
-    <script>
-        function updateFormAction() {
-            const activityType = document.getElementById('activity_type').value;
-            const form = document.getElementById('activityForm');
-            
-            if (activityType === '어학시험') {
-                form.action = 'language_exam.php';
-            } else if (activityType === '자격증') {
-                form.action = 'certification.php';
-            } else if (activityType === '학술대회') {
-                form.action = 'academic_conference.php';
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 { 
+            color: #4CAF50; 
+            margin-bottom: 30px;
+        }
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        button { 
+            padding: 15px 40px; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 4px;
+            cursor: pointer; 
+            font-size: 16px;
+        }
+        button:hover { 
+            background-color: #45a049; 
+        }
+        @media (max-width: 600px) {
+            .button-group {
+                flex-direction: column;
             }
         }
-    </script>
+    </style>
 </head>
 <body>
-    <h1>지 분야 활동 입력</h1>
-    <form method="post" id="activityForm" onsubmit="updateFormAction()">
-        <label for="activity_type">활동 유형:</label>
-        <select id="activity_type" name="activity_type" required>
-            <option value="어학시험">어학시험</option>
-            <option value="자격증">자격증</option>
-            <option value="학술대회">학술대회</option>
-        </select>
-        
-        <label for="details">세부 내용:</label>
-        <input type="text" id="details" name="details" required>
-        
-        <label for="date">날짜:</label>
-        <input type="date" id="date" name="date" required>
-        
-        <input type="submit" value="제출">
-    </form>
-    <br>
-    <button onclick="location.href='select_category.php'">돌아가기</button>
+    <div class="container">
+        <h1>지 분야 활동 입력</h1>
+        <div class="button-group">
+            <form action="language_exam.php" method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <button type="submit" aria-label="어학시험 입력">어학시험</button>
+            </form>
+            <form action="certification.php" method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <button type="submit" aria-label="자격증 입력">자격증</button>
+            </form>
+            <form action="academic_conference.php" method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <button type="submit" aria-label="학술대회 입력">학술대회</button>
+            </form>
+        </div>
+        <form action="select_category.php">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+            <button type="submit" aria-label="홈으로 돌아가기">홈으로</button>
+        </form>
+    </div>
 </body>
 </html>

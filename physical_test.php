@@ -1,8 +1,13 @@
 <?php
 session_start();
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['student_id'])) {
     header("Location: login.php");
     exit;
+}
+
+// CSRF 토큰 생성
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 // MySQL 연결 설정
@@ -13,7 +18,8 @@ $dbname = "GhHj";
 $port = 3306;
 
 // 데이터베이스 연결
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname, $port);
+$conn->set_charset("utf8mb4");
 
 // 연결 확인
 if ($conn->connect_error) {
@@ -22,18 +28,23 @@ if ($conn->connect_error) {
 
 $message = '';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // CSRF 토큰 검증
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("CSRF 토큰 검증 실패");
+    }
+
     $result = $_POST['result'];
     $grade = $_POST['grade'];
     $totalScore = $_POST['totalScore'];
     $improvementScore = $_POST['improvementScore'];
-    $username = $_SESSION['username'];
+    $student_id = $_SESSION['student_id'];
 
-    $sql = "INSERT INTO physical_tests (username, result, grade, totalScore, improvementScore) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO physical_tests (student_id, result, grade, totalScore, improvementScore) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssii", $username, $result, $grade, $totalScore, $improvementScore);
+    $stmt->bind_param("sssii", $student_id, $result, $grade, $totalScore, $improvementScore);
 
     if ($stmt->execute()) {
-        $message = "제출 완료되었습니다.";
+        $message = "제출이 완료되었습니다.";
     } else {
         $message = "Error: " . $stmt->error;
     }
@@ -43,8 +54,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $conn->close();
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자기개발활동 - 체력검정</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -77,11 +90,13 @@ $conn->close();
     <h1>체력검정</h1>
     <?php
     if ($message) {
-        echo "<p>$message</p>";
-        echo "<button class='button' onclick=\"location.href='select_category.php'\">홈으로</button>";
+        echo "<p>" . htmlspecialchars($message) . "</p>";
+        echo "<a href='select_category.php' class='button'>홈으로</a>";
     } else {
     ?>
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        
         <label for="result">합불 여부:</label>
         <select id="result" name="result" required>
             <option value="">선택하세요</option>
@@ -111,6 +126,7 @@ $conn->close();
         <input type="number" id="improvementScore" name="improvementScore" required>
 
         <input type="submit" value="제출">
+        <a href="select_category.php" class="button">홈으로</a>
     </form>
     <?php } ?>
 </body>

@@ -1,65 +1,83 @@
 <?php
 session_start();
-
-// 로그인 확인
-if (!isset($_SESSION['name'])) {
+if (!isset($_SESSION['student_id'])) {
     header("Location: login.php");
-    exit();
+    exit;
 }
 
-$name = htmlspecialchars($_SESSION['name']);
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['category'])) {
-    $category = $_POST['category'];
-
-    switch ($category) {
-        case '지':
-            header("Location: ji_category.php");
-            break;
-        case '인':
-            header("Location: in_category.php");
-            break;
-        case '용':
-            header("Location: yong_category.php");
-            break;
-        default:
-            header("Location: select_category.php");
-            break;
-    }
-    exit();
-}
+// MySQL 연결 설정
+$servername = "localhost";
+$username = "root";
+$password = "1234";
+$dbname = "GhHj";
+$port = 3306;
 ?>
 
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>카테고리 선택</title>
+    <title>활동 분야 선택</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 { 
+            color: #4CAF50; 
+            margin-bottom: 30px;
+        }
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        button { 
+            padding: 15px 40px; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 4px;
+            cursor: pointer; 
+            font-size: 16px;
+        }
+        button:hover { 
+            background-color: #45a049; 
+        }
+    </style>
 </head>
 <body>
-    <h1><?php echo $name; ?>님, 기입할 분야를 선택하세요.</h1>
-    
-    <!-- 카테고리 선택 -->
-    <form method="post">
-        <label for="category">카테고리:</label>
-        <select id="category" name="category" required>
-            <option value="지">지</option>
-            <option value="인">인</option>
-            <option value="용">용</option>
-        </select>
-        <br><br>
-        <input type="submit" value="선택">
-    </form>
-
-    <!-- 로그아웃 -->
-    <form action="logout.php" method="post" style="margin-top: 20px;">
-        <button type="submit">로그아웃</button>
-    </form>
-
-    <!-- 조회 -->
-    <form action="view_records.php" method="get" style="margin-top: 20px;">
-        <button type="submit">조회</button>
-    </form>
+    <div class="container">
+        <h1>활동 분야 선택</h1>
+        <div class="button-group">
+            <form action="ji_category.php" method="POST">
+                <button type="submit">지</button>
+            </form>
+            <form action="in_category.php" method="POST">
+                <button type="submit">인</button>
+            </form>
+            <form action="yong_category.php" method="POST">
+                <button type="submit">용</button>
+            </form>
+        </div>
+        <div class="button-group">
+            <form action="view_records.php" method="POST">
+                <button type="submit">조회</button>
+            </form>
+            <form action="logout.php" method="POST">
+                <button type="submit">로그아웃</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

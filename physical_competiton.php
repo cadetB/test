@@ -1,12 +1,29 @@
 <?php
 session_start();
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['student_id'])) {
     header("Location: login.php");
     exit;
 }
 
+// CSRF 토큰 생성
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// MySQL 연결 설정
+$servername = "localhost";
+$username = "root";
+$password = "1234";
+$dbname = "GhHj";
+$port = 3306;
+
 $message = '';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // CSRF 토큰 검증
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("CSRF 토큰 검증 실패");
+    }
+
     $competition_type = $_POST['competition_type'];
     $category = isset($_POST['category']) ? $_POST['category'] : null;
     $details = $_POST['details'];
@@ -26,24 +43,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // 데이터베이스 저장
-    $servername = "localhost";
-    $username = "root";
-    $password = "1234";
-    $dbname = "GhHj";
-	$port = 3306;
-
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn = new mysqli($servername, $username, $password, $dbname, $port);
+    $conn->set_charset("utf8mb4");
 
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $sql = "INSERT INTO physical_competitions (username, competition_type, category, details, date, file_path) VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO physical_competitions (student_id, competition_type, category, details, date, file_path) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssss", $_SESSION['username'], $competition_type, $category, $details, $date, $file_path);
+    $stmt->bind_param("ssssss", $_SESSION['student_id'], $competition_type, $category, $details, $date, $file_path);
 
     if ($stmt->execute()) {
-        $message = "대회 참여 정보가 제출되었습니다.";
+        $message = "제출이 완료되었습니다.";
     } else {
         $message = "Error: " . $stmt->error;
     }
@@ -54,8 +66,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자기개발활동 - 대회참여</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -100,11 +114,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h1>대회참여</h1>
     <?php
     if ($message) {
-        echo "<p>$message</p>";
-        echo "<button class='button' onclick=\"location.href='select_category.php'\">홈으로</button>";
+        echo "<p>" . htmlspecialchars($message) . "</p>";
+        echo "<a href='select_category.php' class='button'>홈으로</a>";
     } else {
     ?>
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        
         <label for="competition_type">항목:</label>
         <select id="competition_type" name="competition_type" onchange="handleCompetitionChange()" required>
             <option value="">선택하세요</option>
@@ -134,6 +150,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="file" id="file" name="file">
 
         <input type="submit" value="제출">
+        <a href="select_category.php" class="button">홈으로</a>
     </form>
     <?php } ?>
 </body>
