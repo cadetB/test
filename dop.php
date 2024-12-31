@@ -27,6 +27,7 @@ if ($conn->connect_error) {
 }
 
 $message = "";
+$show_form = true;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // CSRF 토큰 검증
@@ -34,37 +35,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("CSRF 토큰 검증 실패");
     }
 
-    $activity_type = $_POST['activity_type'];
-    $date = $_POST['date'];
-    $details = isset($_POST['details']) ? $_POST['details'] : null;
-    $hours = isset($_POST['hours']) ? $_POST['hours'] : null;
+    // 입력 값 가져오기 및 유효성 검증
+    $activity_type = $_POST['activity_type'] ?? '';
+    $date = $_POST['date'] ?? '';
+    $details = isset($_POST['details']) ? trim($_POST['details']) : null;
+    $hours = isset($_POST['hours']) ? (int)$_POST['hours'] : null;
     $subtype = isset($_POST['subtype']) ? $_POST['subtype'] : null;
-    $dop_award = $_POST['dop_award'];
+    $dop_award = $_POST['dop_award'] ?? '';
     $student_id = $_SESSION['student_id'];
 
-    // 파일 업로드 처리
-    $file_path = "";
-    if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
-        $target_dir = "uploads/";
-        if (!is_dir($target_dir)) {
-            mkdir($target_dir, 0777, true);
-        }
-        $target_file = $target_dir . basename($_FILES["file"]["name"]);
-        if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
-            $file_path = $target_file;
-        }
-    }
-
-    $sql = "INSERT INTO dop_activities (student_id, activity_type, date, details, hours, subtype, dop_award, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssss", $student_id, $activity_type, $date, $details, $hours, $subtype, $dop_award, $file_path);
-
-    if ($stmt->execute()) {
-        $message = "제출이 완료되었습니다.";
+    if (empty($activity_type) || empty($date) || empty($dop_award)) {
+        $message = "모든 필드를 정확하게 입력하세요.";
     } else {
-        $message = "Error: " . $stmt->error;
+        // 파일 업로드 처리
+        $file_path = "";
+        if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = "uploads/";
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            $uploadFile = $uploadDir . basename($_FILES["file"]["name"]);
+            if (move_uploaded_file($_FILES["file"]["tmp_name"], $uploadFile)) {
+                $file_path = $uploadFile;
+            }
+        }
+
+        // 데이터베이스 저장
+        $sql = "INSERT INTO dops (student_id, type, date, details, participation_hours, sub_type, selection, file_path) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("ssssssss", $student_id, $activity_type, $date, $details, $hours, $subtype, $dop_award, $file_path);
+
+            if ($stmt->execute()) {
+                $message = "제출이 완료되었습니다.";
+                $show_form = false;
+            } else {
+                $message = "오류: " . $stmt->error;
+            }
+            $stmt->close();
+        } else {
+            $message = "SQL 준비 실패: " . $conn->error;
+        }
     }
-    $stmt->close();
 }
 
 $conn->close();
@@ -120,15 +133,18 @@ $conn->close();
 </head>
 <body>
     <h1>DOP 활동</h1>
-    <?php if ($message): ?>
+    <?php if (!empty($message)): ?>
         <p><?php echo htmlspecialchars($message); ?></p>
         <a href="select_category.php" class="button">홈으로</a>
-    <?php else: ?>
+    <?php endif; ?>
+
+    <?php if ($show_form): ?>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             
             <label for="activity_type">항목:</label>
             <select id="activity_type" name="activity_type" onchange="toggleFields()" required>
+                <option value="" disabled selected>선택하세요</option>
                 <option value="봉사활동">봉사활동</option>
                 <option value="헌혈">헌혈</option>
             </select>
@@ -140,12 +156,13 @@ $conn->close();
 
             <div id="hoursField" style="display:none;">
                 <label for="hours">참여 시간(시간):</label>
-                <input type="text" id="hours" name="hours">
+                <input type="number" id="hours" name="hours" min="1">
             </div>
 
             <div id="subtypeField" style="display:none;">
                 <label for="subtype">세부 항목:</label>
                 <select id="subtype" name="subtype">
+                    <option value="" disabled selected>선택하세요</option>
                     <option value="전혈">전혈</option>
                     <option value="혈장">혈장</option>
                 </select>
@@ -156,6 +173,7 @@ $conn->close();
 
             <label for="dop_award">DOP 생도 선정:</label>
             <select id="dop_award" name="dop_award" required>
+                <option value="" disabled selected>선택하세요</option>
                 <option value="최우수">최우수</option>
                 <option value="우수">우수</option>
                 <option value="장려">장려</option>

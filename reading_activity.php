@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $activity_type = $_POST['activity_type'];
         $details = $_POST['details'] ?? '';
         $date = $_POST['date'] ?? '';
-        $award = $_POST['award'] ?? null;
+        $award = isset($_POST['award']) && $_POST['award'] !== '' ? $_POST['award'] : null;
         $student_id = $_SESSION['student_id'];
 
         // 파일 업로드 처리

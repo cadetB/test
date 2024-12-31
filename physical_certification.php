@@ -5,6 +5,11 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
+// 디버깅용 에러 출력 활성화
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // CSRF 토큰 생성
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -18,49 +23,67 @@ $dbname = "GhHj";
 $port = 3306;
 
 $message = '';
+$show_form = true;
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // CSRF 토큰 검증
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
     }
 
-    $certification_type = $_POST['certification_type'];
-    $details = $_POST['details'];
-    $date = $_POST['date'];
+    // 사용자 입력 값 가져오기 및 유효성 검사
+    $student_id = $_SESSION['student_id'];
+    $certification_type = isset($_POST['certification_type']) ? trim($_POST['certification_type']) : '';
+    $details = isset($_POST['details']) ? trim($_POST['details']) : '';
+    $date = isset($_POST['date']) ? trim($_POST['date']) : '';
     $file_path = "";
 
-    // 파일 업로드 처리
-    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = 'uploads/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-        $uploadFile = $uploadDir . basename($_FILES['file']['name']);
-        if (move_uploaded_file($_FILES['file']['tmp_name'], $uploadFile)) {
-            $file_path = $uploadFile;
-        }
-    }
+    $valid_certifications = ['무도 단증', '기타 체육 자격증'];
 
-    // 데이터베이스 저장
-    $conn = new mysqli($servername, $username, $password, $dbname, $port);
-    $conn->set_charset("utf8mb4");
-
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    $sql = "INSERT INTO physical_certifications (student_id, certification_type, details, date, file_path) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssss", $_SESSION['student_id'], $certification_type, $details, $date, $file_path);
-
-    if ($stmt->execute()) {
-        $message = "제출이 완료되었습니다.";
+    if (empty($certification_type) || !in_array($certification_type, $valid_certifications) || empty($date)) {
+        $message = "유효한 자격증 유형을 선택하고, 필드를 정확히 입력하세요.";
     } else {
-        $message = "Error: " . $stmt->error;
-    }
+        // 파일 업로드 처리
+        if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = 'uploads/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            $uploadFile = $uploadDir . basename($_FILES['file']['name']);
+            if (move_uploaded_file($_FILES['file']['tmp_name'], $uploadFile)) {
+                $file_path = $uploadFile;
+            } else {
+                $message = "파일 업로드 실패.";
+                $show_form = true;
+            }
+        }
 
-    $stmt->close();
-    $conn->close();
+        // 데이터베이스 저장
+        $conn = new mysqli($servername, $username, $password, $dbname, $port);
+        $conn->set_charset("utf8mb4");
+
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        $sql = "INSERT INTO physical_certifications (student_id, certification, details, date, file_path) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+
+        if ($stmt) {
+            $stmt->bind_param("sssss", $student_id, $certification_type, $details, $date, $file_path);
+            if ($stmt->execute()) {
+                $message = "제출이 완료되었습니다.";
+                $show_form = false;
+            } else {
+                $message = "오류: " . $stmt->error;
+            }
+            $stmt->close();
+        } else {
+            $message = "SQL 준비 실패: " . $conn->error;
+        }
+
+        $conn->close();
+    }
 }
 ?>
 
@@ -102,15 +125,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php
     if ($message) {
         echo "<p>" . htmlspecialchars($message) . "</p>";
-        echo "<a href='select_category.php' class='button'>홈으로</a>";
-    } else {
+        if (!$show_form) {
+            echo "<a href='select_category.php' class='button'>홈으로</a>";
+        }
+    }
+    if ($show_form) {
     ?>
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-        
+
         <label for="certification_type">항목:</label>
         <select id="certification_type" name="certification_type" required>
-            <option value="">선택하세요</option>
+            <option value="" disabled selected>선택하세요</option>
             <option value="무도 단증">무도 단증</option>
             <option value="기타 체육 자격증">기타 체육 자격증</option>
         </select>
