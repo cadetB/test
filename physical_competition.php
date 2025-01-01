@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // 유효성 검증
     if (empty($competition_type) || empty($details) || empty($date)) {
-        $message = "모든 필드를 정확하게 입력하세요.";
+        $message = "";
     } else {
         // 파일 업로드 처리
         if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
@@ -126,7 +126,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <h1>대회참여</h1>
     <?php if ($message): ?>
         <p><?php echo htmlspecialchars($message); ?></p>
-        <a href="select_category.php" class="button">홈으로</a>
     <?php endif; ?>
 
     <?php if ($show_form): ?>
@@ -152,16 +151,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </select>
             </div>
 
-            <label for="details">상세 내용:</label>
+            <label for="details">상세내용:</label>
             <textarea id="details" name="details" rows="4" required></textarea>
 
-            <label for="date">참여 날짜:</label>
+            <label for="date">참여일자:</label>
             <input type="date" id="date" name="date" required>
 
-            <label for="file">파일 업로드:</label>
+            <label for="file">증빙자료:</label>
             <input type="file" id="file" name="file">
 
             <input type="submit" value="제출">
+			<a href="select_category.php" class="button">홈으로</a>
         </form>
     <?php endif; ?>
 </body>

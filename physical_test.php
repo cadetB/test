@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($result) || !in_array($result, $valid_results) ||
         empty($grade) || !in_array($grade, $valid_grades) ||
         $totalScore <= 0 || $improvementScore < 0) {
-        $message = "합불 여부를 선택해야 합니다. 모든 필드를 정확하게 입력하세요.";
+        $message = "";
     } else {
         // 데이터 삽입
         $sql = "INSERT INTO physical_tests (student_id, result, grade, total_score, improvement_score, date) 

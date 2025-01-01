@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // 데이터 검증
     if (!isset($_POST['activity_type']) || $_POST['activity_type'] === "") {
-        $message = "";
+        $message = "Error: 항목을 선택하세요.";
     } elseif (!in_array($_POST['activity_type'], ['독서프로그램', '독후감 대회'])) {
         $message = "Error: 유효하지 않은 항목입니다.";
     } else {
@@ -101,6 +101,7 @@ $conn->close();
         }
         input[type="submit"]:hover, .button:hover { background-color: #45a049; }
         .error { color: red; }
+        .message { margin-top: 20px; font-weight: bold; }
     </style>
     <script>
         function toggleAwardField() {
@@ -116,44 +117,45 @@ $conn->close();
 </head>
 <body>
     <h1>독서활동</h1>
-    <?php if ($message): ?>
-        <p class="<?php echo strpos($message, 'Error') !== false ? 'error' : ''; ?>">
+    <?php if (!empty($message)): ?>
+        <p class="message <?php echo strpos($message, 'Error') !== false ? 'error' : ''; ?>">
             <?php echo htmlspecialchars($message); ?>
         </p>
         <?php if (strpos($message, '완료') !== false): ?>
             <a href="select_category.php" class="button">홈으로</a>
         <?php endif; ?>
-    <?php endif; ?>
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-        
-        <label for="activity_type">항목:</label>
-        <select id="activity_type" name="activity_type" onchange="toggleAwardField()" required>
-            <option value="" disabled selected>항목을 선택하세요</option>
-            <option value="독서프로그램">독서프로그램</option>
-            <option value="독후감 대회">독후감 대회</option>
-        </select>
-
-        <div id="awardField" style="display:none;">
-            <label for="award">수상:</label>
-            <select id="award" name="award">
-                <option value="">수상 여부 선택</option>
-                <option value="영내 입상">영내 입상</option>
-                <option value="대외 입상">대외 입상</option>
+    <?php else: ?>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+            
+            <label for="activity_type">항목:</label>
+            <select id="activity_type" name="activity_type" onchange="toggleAwardField()" required>
+                <option value="" disabled selected>선택하세요</option>
+                <option value="독서프로그램">독서프로그램</option>
+                <option value="독후감 대회">독후감 대회</option>
             </select>
-        </div>
 
-        <label for="details">상세 내용:</label>
-        <textarea id="details" name="details" rows="4" required></textarea>
+            <div id="awardField" style="display:none;">
+                <label for="award">수상:</label>
+                <select id="award" name="award">
+                    <option value="">선택하세요</option>
+                    <option value="영내 입상">영내 입상</option>
+                    <option value="대외 입상">대외 입상</option>
+                </select>
+            </div>
 
-        <label for="date">참여 날짜:</label>
-        <input type="date" id="date" name="date" required>
+            <label for="details">상세내용:</label>
+            <textarea id="details" name="details" rows="4" required></textarea>
 
-        <label for="file">증빙 자료:</label>
-        <input type="file" id="file" name="file">
+            <label for="date">참여일자:</label>
+            <input type="date" id="date" name="date" required>
 
-        <input type="submit" value="제출">
+            <label for="file">증빙자료:</label>
+            <input type="file" id="file" name="file">
+
+            <input type="submit" value="제출">
+        </form>
         <a href="select_category.php" class="button">홈으로</a>
-    </form>
+    <?php endif; ?>
 </body>
 </html>

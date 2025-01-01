@@ -71,9 +71,9 @@ $port = 3306;
             </form>
         </div>
         <div class="button-group">
-            <form action="view_records.php" method="POST">
-                <button type="submit">조회</button>
-            </form>
+            <form action="view_records.php" method="GET"> <!-- GET 요청으로 변경 -->
+    			<button type="submit">조회</button>
+			</form>
             <form action="logout.php" method="POST">
                 <button type="submit">로그아웃</button>
             </form>

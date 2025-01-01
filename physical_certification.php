@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $valid_certifications = ['무도 단증', '기타 체육 자격증'];
 
     if (empty($certification_type) || !in_array($certification_type, $valid_certifications) || empty($date)) {
-        $message = "유효한 자격증 유형을 선택하고, 필드를 정확히 입력하세요.";
+        $message = "";
     } else {
         // 파일 업로드 처리
         if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
@@ -141,13 +141,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <option value="기타 체육 자격증">기타 체육 자격증</option>
         </select>
 
-        <label for="details">상세 내용:</label>
+        <label for="details">상세내용:</label>
         <textarea id="details" name="details" rows="4" required></textarea>
 
-        <label for="date">취득 일자:</label>
+        <label for="date">취득일자:</label>
         <input type="date" id="date" name="date" required>
 
-        <label for="file">증빙 자료:</label>
+        <label for="file">증빙자료:</label>
         <input type="file" id="file" name="file">
 
         <input type="submit" value="제출">

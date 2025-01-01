@@ -198,14 +198,14 @@ $conn->close();
         </div>
 
         <div id="detailsDiv" style="display:none;">
-            <label for="details">상세 내용:</label>
+            <label for="details">상세내용:</label>
             <textarea id="details" name="details" rows="4"></textarea>
         </div>
+		
+		<label for="date">응시일자:</label>
+        <input type="date" id="date" name="date" required><br>
 
-        <label for="date">응시일자 (YYYY-MM-DD):</label>
-        <input type="text" id="date" name="date" placeholder="YYYY-MM-DD" required>
-
-        <label for="file">증빙 자료:</label>
+        <label for="file">증빙자료:</label>
         <input type="file" id="file" name="file">
 
         <input type="submit" name="submit_exam" value="제출">

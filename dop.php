@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $student_id = $_SESSION['student_id'];
 
     if (empty($activity_type) || empty($date) || empty($dop_award)) {
-        $message = "모든 필드를 정확하게 입력하세요.";
+        $message = "필수 항목을 입력해주세요.";
     } else {
         // 파일 업로드 처리
         $file_path = "";
@@ -135,7 +135,9 @@ $conn->close();
     <h1>DOP 활동</h1>
     <?php if (!empty($message)): ?>
         <p><?php echo htmlspecialchars($message); ?></p>
-        <a href="select_category.php" class="button">홈으로</a>
+        <?php if (!$show_form): ?>
+            <a href="select_category.php" class="button">홈으로</a>
+        <?php endif; ?>
     <?php endif; ?>
 
     <?php if ($show_form): ?>
@@ -150,17 +152,17 @@ $conn->close();
             </select>
 
             <div id="detailsField" style="display:none;">
-                <label for="details">상세 내용:</label>
+                <label for="details">상세내용:</label>
                 <textarea id="details" name="details" rows="4"></textarea>
             </div>
 
             <div id="hoursField" style="display:none;">
-                <label for="hours">참여 시간(시간):</label>
+                <label for="hours">참여시간:</label>
                 <input type="number" id="hours" name="hours" min="1">
             </div>
 
             <div id="subtypeField" style="display:none;">
-                <label for="subtype">세부 항목:</label>
+                <label for="subtype">세부항목:</label>
                 <select id="subtype" name="subtype">
                     <option value="" disabled selected>선택하세요</option>
                     <option value="전혈">전혈</option>
@@ -168,10 +170,10 @@ $conn->close();
                 </select>
             </div>
 
-            <label for="date">참여 날짜:</label>
+            <label for="date">참여일자:</label>
             <input type="date" id="date" name="date" required>
 
-            <label for="dop_award">DOP 생도 선정:</label>
+            <label for="dop_award">DOP생도 선정:</label>
             <select id="dop_award" name="dop_award" required>
                 <option value="" disabled selected>선택하세요</option>
                 <option value="최우수">최우수</option>
@@ -180,11 +182,11 @@ $conn->close();
                 <option value="해당 없음">해당 없음</option>
             </select>
 
-            <label for="file">증빙 자료:</label>
+            <label for="file">증빙자료:</label>
             <input type="file" id="file" name="file">
 
             <input type="submit" value="제출">
-            <a href="select_category.php" class="button">홈으로</a>
+			<a href="select_category.php" class="button">홈으로</a>
         </form>
     <?php endif; ?>
 </body>
