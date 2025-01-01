@@ -83,74 +83,115 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>소모임 & 휴일프로그램</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #4CAF50; }
-        form { margin-top: 20px; }
-        label { display: block; margin-top: 10px; }
-        input[type="text"], input[type="date"], input[type="file"], select, textarea { width: 300px; padding: 5px; margin-top: 5px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #0000FF;
+            margin-bottom: 30px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #000;
+        }
+        input[type="text"], input[type="date"], input[type="file"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
         input[type="submit"], .button {
             display: inline-block;
             margin-top: 20px;
             padding: 10px 20px;
-            background-color: #4CAF50;
+            background-color: #0000FF;
             color: white;
             border: none;
             cursor: pointer;
             text-decoration: none;
             font-size: 16px;
+            border-radius: 4px;
         }
-        input[type="submit"]:hover, .button:hover { background-color: #45a049; }
-        .error { color: red; }
-        .success { color: green; }
-        .home-button {
-            margin-top: 20px;
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
+        input[type="submit"]:hover, .button:hover {
+            background-color: #000099;
+        }
+        .top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+        }
+        .top-right-link a {
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
+            color: #0000FF;
         }
-        .home-button:hover {
-            background-color: #45a049;
+        .top-right-link a:hover {
+            color: #000099;
+            text-decoration: underline;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
         }
     </style>
 </head>
 <body>
-    <h1>소모임 & 휴일프로그램</h1>
+    <div class="top-right-link">
+        <a href="select_category.php">홈으로</a>
+    </div>
+    <div class="container">
+        <h1>소모임 & 휴일프로그램</h1>
 
-    <?php if (!empty($message)): ?>
-        <p class="<?php echo strpos($message, '완료') !== false ? 'success' : 'error'; ?>">
-            <?php echo htmlspecialchars($message); ?>
-        </p>
-        <?php if (strpos($message, '완료') !== false): ?>
-            <a href="select_category.php" class="home-button">홈으로</a>
+        <?php if (!empty($message)): ?>
+            <p class="<?php echo strpos($message, '완료') !== false ? 'success' : 'error'; ?>">
+                <?php echo htmlspecialchars($message); ?>
+            </p>
+            <?php if (!$show_form): ?>
+                <a href="select_category.php" class="button">홈으로</a>
+            <?php endif; ?>
         <?php endif; ?>
-    <?php endif; ?>
 
-    <?php if ($show_form): ?>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        <?php if ($show_form): ?>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
-            <label for="activity_type">항목:</label>
-            <select id="activity_type" name="activity_type" required>
-                <option value="" disabled selected>선택하세요</option>
-                <option value="휴일 프로그램">휴일 프로그램</option>
-                <option value="소모임">소모임</option>
-            </select>
+                <label for="activity_type">항목:</label>
+                <select id="activity_type" name="activity_type" required>
+                    <option value="" disabled selected>선택하세요</option>
+                    <option value="휴일 프로그램">휴일 프로그램</option>
+                    <option value="소모임">소모임</option>
+                </select>
 
-            <label for="details">상세내용:</label>
-            <textarea id="details" name="details" rows="4" required></textarea>
+                <label for="details">상세내용:</label>
+                <textarea id="details" name="details" rows="4" required></textarea>
 
-            <label for="date">참여일자:</label>
-            <input type="date" id="date" name="date" required>
+                <label for="date">참여일자:</label>
+                <input type="date" id="date" name="date" required>
 
-            <label for="file">증빙자료:</label>
-            <input type="file" id="file" name="file">
+                <label for="file">증빙자료:</label>
+                <input type="file" id="file" name="file">
 
-            <input type="submit" value="제출">
-        </form>
-    <?php endif; ?>
+                <input type="submit" value="제출">
+            </form>
+        <?php endif; ?>
+    </div>
 </body>
 </html>

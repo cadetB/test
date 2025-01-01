@@ -82,23 +82,68 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DOP 활동</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #4CAF50; }
-        form { margin-top: 20px; }
-        label { display: block; margin-top: 10px; }
-        input[type="text"], input[type="date"], input[type="file"], select, textarea { width: 300px; padding: 5px; margin-top: 5px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #0000FF;
+            margin-bottom: 30px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #000;
+        }
+        input[type="text"], input[type="date"], input[type="file"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
         input[type="submit"], .button {
             display: inline-block;
             margin-top: 20px;
             padding: 10px 20px;
-            background-color: #4CAF50;
+            background-color: #0000FF;
             color: white;
             border: none;
             cursor: pointer;
             text-decoration: none;
             font-size: 16px;
+            border-radius: 4px;
         }
-        input[type="submit"]:hover, .button:hover { background-color: #45a049; }
+        input[type="submit"]:hover, .button:hover {
+            background-color: #000099;
+        }
+        .top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+        }
+        .top-right-link a {
+            text-decoration: none;
+            color: #0000FF;
+        }
+        .top-right-link a:hover {
+            color: #000099;
+            text-decoration: underline;
+        }
     </style>
     <script>
         function toggleFields() {
@@ -124,62 +169,66 @@ $conn->close();
     </script>
 </head>
 <body>
-    <h1>DOP 활동</h1>
-    <?php if (!empty($message)): ?>
-        <p><?php echo htmlspecialchars($message); ?></p>
-        <?php if (!$show_form): ?>
-            <a href="select_category.php" class="button">홈으로</a>
+    <div class="top-right-link">
+        <a href="select_category.php">홈으로</a>
+    </div>
+    <div class="container">
+        <h1>DOP 활동</h1>
+        <?php if (!empty($message)): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+            <?php if (!$show_form): ?>
+                <a href="select_category.php" class="button">홈으로</a>
+            <?php endif; ?>
         <?php endif; ?>
-    <?php endif; ?>
 
-    <?php if ($show_form): ?>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-            
-            <label for="activity_type">항목:</label>
-            <select id="activity_type" name="activity_type" onchange="toggleFields()" required>
-                <option value="" disabled selected>선택하세요</option>
-                <option value="봉사활동">봉사활동</option>
-                <option value="헌혈">헌혈</option>
-            </select>
-
-            <div id="detailsField" style="display:none;">
-                <label for="details">상세내용:</label>
-                <textarea id="details" name="details" rows="4"></textarea>
-            </div>
-
-            <div id="hoursField" style="display:none;">
-                <label for="hours">참여시간:</label>
-                <input type="number" id="hours" name="hours" min="1">
-            </div>
-
-            <div id="subtypeField" style="display:none;">
-                <label for="subtype">세부항목:</label>
-                <select id="subtype" name="subtype">
+        <?php if ($show_form): ?>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                
+                <label for="activity_type">항목:</label>
+                <select id="activity_type" name="activity_type" onchange="toggleFields()" required>
                     <option value="" disabled selected>선택하세요</option>
-                    <option value="전혈">전혈</option>
-                    <option value="혈장">혈장</option>
+                    <option value="봉사활동">봉사활동</option>
+                    <option value="헌혈">헌혈</option>
                 </select>
-            </div>
 
-            <label for="date">참여일자:</label>
-            <input type="date" id="date" name="date" required>
+                <div id="detailsField" style="display:none;">
+                    <label for="details">상세내용:</label>
+                    <textarea id="details" name="details" rows="4"></textarea>
+                </div>
 
-            <label for="dop_award">DOP생도 선정:</label>
-            <select id="dop_award" name="dop_award" required>
-                <option value="" disabled selected>선택하세요</option>
-                <option value="최우수">최우수</option>
-                <option value="우수">우수</option>
-                <option value="장려">장려</option>
-                <option value="해당 없음">해당 없음</option>
-            </select>
+                <div id="hoursField" style="display:none;">
+                    <label for="hours">참여시간:</label>
+                    <input type="number" id="hours" name="hours" min="1">
+                </div>
 
-            <label for="file">증빙자료:</label>
-            <input type="file" id="file" name="file">
+                <div id="subtypeField" style="display:none;">
+                    <label for="subtype">세부항목:</label>
+                    <select id="subtype" name="subtype">
+                        <option value="" disabled selected>선택하세요</option>
+                        <option value="전혈">전혈</option>
+                        <option value="혈장">혈장</option>
+                    </select>
+                </div>
 
-            <input type="submit" value="제출">
-			<a href="select_category.php" class="button">홈으로</a>
-        </form>
-    <?php endif; ?>
+                <label for="date">참여일자:</label>
+                <input type="date" id="date" name="date" required>
+
+                <label for="dop_award">DOP생도 선정:</label>
+                <select id="dop_award" name="dop_award" required>
+                    <option value="" disabled selected>선택하세요</option>
+                    <option value="최우수">최우수</option>
+                    <option value="우수">우수</option>
+                    <option value="장려">장려</option>
+                    <option value="해당 없음">해당 없음</option>
+                </select>
+
+                <label for="file">증빙자료:</label>
+                <input type="file" id="file" name="file">
+
+                <input type="submit" value="제출">
+            </form>
+        <?php endif; ?>
+    </div>
 </body>
 </html>
