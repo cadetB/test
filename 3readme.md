@@ -684,3 +684,15 @@ $conn->close();
 </body>
 </html> language_exam.php 코드와 일치하는지, 테이블에 대한 수정이 필요한지 판단하고 알맞게 테이블을 수정하는 명령어를 알려줘. 상세 내용 등은 한글이 입력되도록 할 필요도 있어.
 
+    // 시험 종류에 따라 값 분기/ //12.30 01:45 
+    /*if ($exam === "토익" || $exam === "토익스피킹") {
+        $score = $_POST['score'];
+        $improvement = $_POST['improvement'];
+    } elseif ($exam === "HSK") {
+        $grade = $_POST['grade'];
+    } elseif ($exam === "JLPT") {
+        $grade = $_POST['grade'];
+    } elseif ($exam === "기타") {
+        $details = $_POST['details'];
+        $score = $_POST['score'];
+    }*/

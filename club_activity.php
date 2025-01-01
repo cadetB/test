@@ -5,24 +5,20 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-// 디버깅 활성화 (테스트용)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// CSRF 토큰 생성
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// MySQL 연결 설정
 $servername = "localhost";
 $username = "root";
 $password = "1234";
 $dbname = "GhHj";
 $port = 3306;
 
-// 데이터베이스 연결
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
 $conn->set_charset("utf8mb4");
 
@@ -30,16 +26,14 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$message = ""; // 초기 메시지 설정
-$show_form = true; // 폼 표시 여부 설정
+$message = "";
+$show_form = true;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // CSRF 토큰 검증
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
     }
 
-    // 데이터 검증
     $activity_type = $_POST['activity_type'] ?? '';
     $details = trim($_POST['details'] ?? '');
     $date = $_POST['date'] ?? '';
@@ -48,7 +42,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($activity_type) || empty($date)) {
         $message = "";
     } else {
-        // 파일 업로드 처리
         $file_path = "";
         if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
             $target_dir = "uploads/";
@@ -61,7 +54,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // 데이터베이스 삽입
         $sql = "INSERT INTO club_activities (student_id, activity_type, details, date, file_path) 
                 VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
@@ -70,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($stmt->execute()) {
                 $message = "제출이 완료되었습니다.";
-                $show_form = false; // 폼 숨기기
+                $show_form = false;
             } else {
                 $message = "오류: " . $stmt->error;
             }
@@ -128,18 +120,15 @@ $conn->close();
 <body>
     <h1>소모임 & 휴일프로그램</h1>
 
-    <!-- 메시지가 있는 경우 표시 -->
     <?php if (!empty($message)): ?>
         <p class="<?php echo strpos($message, '완료') !== false ? 'success' : 'error'; ?>">
             <?php echo htmlspecialchars($message); ?>
         </p>
         <?php if (strpos($message, '완료') !== false): ?>
-            <!-- "홈으로" 버튼 표시 -->
             <a href="select_category.php" class="home-button">홈으로</a>
         <?php endif; ?>
     <?php endif; ?>
 
-    <!-- 폼 표시 -->
     <?php if ($show_form): ?>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">

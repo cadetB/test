@@ -5,12 +5,10 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-// CSRF 토큰 생성
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// 오류 처리 함수
 function handleError($errno, $errstr) {
     error_log("Error: [$errno] $errstr");
     echo "<p style='color: red;'>죄송합니다. 오류가 발생했습니다.</p>";
@@ -41,7 +39,7 @@ set_error_handler("handleError");
             text-align: center;
         }
         h1 { 
-            color: #4CAF50; 
+            color: #0000FF; 
             margin-bottom: 30px;
         }
         .button-group {
@@ -52,7 +50,7 @@ set_error_handler("handleError");
         }
         button { 
             padding: 15px 40px; 
-            background-color: #4CAF50; 
+            background-color: #0000FF; 
             color: white; 
             border: none; 
             border-radius: 4px;
@@ -60,16 +58,34 @@ set_error_handler("handleError");
             font-size: 16px;
         }
         button:hover { 
-            background-color: #45a049; 
+            background-color: #000099; 
         }
         @media (max-width: 600px) {
             .button-group {
                 flex-direction: column;
             }
         }
+        .top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+        }
+        .top-right-link a {
+            text-decoration: none;
+            color: #0000FF;
+            font-weight: normal;
+        }
+        .top-right-link a:hover {
+            text-decoration: underline;
+            color: #000099;
+        }
     </style>
 </head>
 <body>
+    <div class="top-right-link">
+        <a href="select_category.php" aria-label="홈으로">홈으로</a>
+    </div>
     <div class="container">
         <h1>지 분야 활동 입력</h1>
         <div class="button-group">
@@ -86,10 +102,6 @@ set_error_handler("handleError");
                 <button type="submit" aria-label="학술대회 입력">학술대회</button>
             </form>
         </div>
-        <form action="select_category.php">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-            <button type="submit" aria-label="홈으로 돌아가기">홈으로</button>
-        </form>
     </div>
 </body>
 </html>

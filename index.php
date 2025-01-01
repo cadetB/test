@@ -1,23 +1,18 @@
 <?php
 session_start();
-// 수정 session_unset();
-//  수정 session_destroy();   -> 12.30 01:17 이 두개 명령어 삭제하여 새로운 회원가입 가능 
 
-// CSRF 토큰 생성
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 $error_message = "";
 
-// MySQL 연결 설정
 $servername = "localhost";
 $username = "root";
 $password = "1234";
 $dbname = "GhHj";
 $port = 3306;
 
-// 데이터베이스 연결
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
 $conn->set_charset("utf8mb4");
 
@@ -74,14 +69,51 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #4CAF50; }
-        form { max-width: 400px; margin: auto; }
-        label { display: block; margin: 10px 0 5px; }
-        input, select { width: 100%; padding: 8px; margin-bottom: 10px; }
-        button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; margin-right: 10px; }
-        button:hover { background-color: #45a049; }
-        .error { color: red; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        h1 { 
+            color: #0000FF; 
+            text-align: center; 
+            margin-bottom: 20px; 
+        }
+        form { 
+            max-width: 400px; 
+            margin: auto; 
+        }
+        label { 
+            display: block; 
+            margin: 10px 0 5px; 
+        }
+        input, select { 
+            width: 100%; 
+            padding: 8px; 
+            margin-bottom: 10px; 
+        }
+        .button-group { 
+            display: flex; 
+            justify-content: space-between; 
+        }
+        button { 
+            padding: 10px 20px; 
+            background-color: #0000FF; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 4px; 
+        }
+        button:hover { 
+            background-color: #0000CC; 
+        }
+        .error { 
+            color: red; 
+            text-align: center; 
+            margin-bottom: 15px; 
+        }
     </style>
 </head>
 <body>
@@ -114,9 +146,11 @@ $conn->close();
             <input type="text" id="confirmation_code" name="confirmation_code">
         </div>
 
-        <button type="submit">등록</button>
+        <div class="button-group">
+            <button type="submit">등록</button>
+            <button type="button" onclick="window.location.href='login.php'">로그인</button>
+        </div>
     </form>
-    <button onclick="window.location.href='login.php'">로그인</button>
 
     <script>
         function showConfirmationCode() {

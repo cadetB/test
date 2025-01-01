@@ -5,23 +5,19 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-// CSRF 토큰 생성
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// MySQL 연결 설정
 $servername = "localhost";
 $username = "root";
 $password = "1234";
 $dbname = "GhHj";
 $port = 3306;
 
-// 데이터베이스 연결
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
 $conn->set_charset("utf8mb4");
 
-// 연결 확인
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -30,12 +26,10 @@ $message = "";
 $show_form = true;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // CSRF 토큰 검증
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
     }
 
-    // 입력 값 가져오기 및 유효성 검증
     $activity_type = $_POST['activity_type'] ?? '';
     $date = $_POST['date'] ?? '';
     $details = isset($_POST['details']) ? trim($_POST['details']) : null;
@@ -47,7 +41,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($activity_type) || empty($date) || empty($dop_award)) {
         $message = "필수 항목을 입력해주세요.";
     } else {
-        // 파일 업로드 처리
         $file_path = "";
         if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = "uploads/";
@@ -60,7 +53,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // 데이터베이스 저장
         $sql = "INSERT INTO dops (student_id, type, date, details, participation_hours, sub_type, selection, file_path) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);

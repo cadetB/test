@@ -11,7 +11,6 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// MySQL 설정
 $servername = "localhost";
 $username = "root";
 $password = "1234";
@@ -22,23 +21,19 @@ $message = '';
 $show_form = true;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // CSRF 토큰 검증
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
     }
 
-    // 입력 값 가져오기
     $competition_type = $_POST['competition_type'] ?? '';
     $category = $_POST['category'] ?? null;
     $details = trim($_POST['details'] ?? '');
     $date = $_POST['date'] ?? '';
     $file_path = '';
 
-    // 유효성 검증
     if (empty($competition_type) || empty($details) || empty($date)) {
         $message = "";
     } else {
-        // 파일 업로드 처리
         if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = 'uploads/';
             if (!is_dir($uploadDir)) {
@@ -52,7 +47,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
 
-        // 데이터베이스 저장
         $conn = new mysqli($servername, $username, $password, $dbname, $port);
         $conn->set_charset("utf8mb4");
 

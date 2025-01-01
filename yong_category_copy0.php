@@ -56,7 +56,7 @@ function getDatabaseConnection() {
             text-align: center;
         }
         h1 { 
-            color: #0000FF; /* 파란색 */
+            color: #4CAF50; 
             margin-bottom: 30px;
         }
         .button-group {
@@ -67,7 +67,7 @@ function getDatabaseConnection() {
         }
         button { 
             padding: 15px 40px; 
-            background-color: #0000FF; /* 파란색 */
+            background-color: #4CAF50; 
             color: white; 
             border: none; 
             border-radius: 4px;
@@ -75,21 +75,7 @@ function getDatabaseConnection() {
             font-size: 16px;
         }
         button:hover { 
-            background-color: #000099; /* 어두운 파란색 */
-        }
-        .top-right-link {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-        .top-right-link a {
-            text-decoration: none;
-            color: #0000FF;
-            font-size: 16px;
-        }
-        .top-right-link a:hover {
-            text-decoration: underline;
-            color: #000099;
+            background-color: #45a049; 
         }
         @media (max-width: 600px) {
             .button-group {
@@ -99,9 +85,6 @@ function getDatabaseConnection() {
     </style>
 </head>
 <body>
-    <div class="top-right-link">
-        <a href="select_category.php" aria-label="홈으로 돌아가기">홈으로</a>
-    </div>
     <div class="container">
         <h1>용 분야 활동 입력</h1>
         <div class="button-group">
@@ -118,6 +101,10 @@ function getDatabaseConnection() {
                 <button type="submit" aria-label="대회참여 입력">대회참여</button>
             </form>
         </div>
+        <form action="select_category.php">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+            <button type="submit" aria-label="홈으로 돌아가기">홈으로</button>
+        </form>
     </div>
 </body>
 </html>

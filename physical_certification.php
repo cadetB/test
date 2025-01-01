@@ -5,17 +5,14 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-// 디버깅용 에러 출력 활성화
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// CSRF 토큰 생성
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// MySQL 연결 설정
 $servername = "localhost";
 $username = "root";
 $password = "1234";
@@ -26,12 +23,10 @@ $message = '';
 $show_form = true;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // CSRF 토큰 검증
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
     }
 
-    // 사용자 입력 값 가져오기 및 유효성 검사
     $student_id = $_SESSION['student_id'];
     $certification_type = isset($_POST['certification_type']) ? trim($_POST['certification_type']) : '';
     $details = isset($_POST['details']) ? trim($_POST['details']) : '';
@@ -43,7 +38,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($certification_type) || !in_array($certification_type, $valid_certifications) || empty($date)) {
         $message = "";
     } else {
-        // 파일 업로드 처리
         if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = 'uploads/';
             if (!is_dir($uploadDir)) {
@@ -58,7 +52,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // 데이터베이스 저장
         $conn = new mysqli($servername, $username, $password, $dbname, $port);
         $conn->set_charset("utf8mb4");
 

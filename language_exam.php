@@ -5,38 +5,31 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-// CSRF 토큰 생성
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// MySQL 연결 설정
 $servername = "localhost";
 $username = "root";
 $password = "1234";
 $dbname = "GhHj";
 $port = 3306;
 
-// 데이터베이스 연결
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
 $conn->set_charset("utf8mb4");
 
-// 연결 확인
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
 $message = "";
 
-//12.30 01:45 ** submit_exam 버튼이 눌려야만 DB 저장 로직을 실행 **/
-
-
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_exam'])) {
-	// CSRF 토큰 검증
+    // CSRF 토큰 검증
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
     }
-//12.30 01:45 
+
     $student_id  = $_SESSION['student_id'];
     $exam        = $_POST['exam']        ?? '';
     $score       = null;
@@ -45,7 +38,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_exam'])) {
     $details     = null;
     $date        = $_POST['date']        ?? '';
     $file_path   = "";
-    // 파일 업로드 처리
 
     if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
         $target_dir = "uploads/";
@@ -57,19 +49,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_exam'])) {
             $file_path = $target_file;
         }
     }
-    // 시험 종류에 따라 값 분기/ //12.30 01:45 
-    /*if ($exam === "토익" || $exam === "토익스피킹") {
-        $score = $_POST['score'];
-        $improvement = $_POST['improvement'];
-    } elseif ($exam === "HSK") {
-        $grade = $_POST['grade'];
-    } elseif ($exam === "JLPT") {
-        $grade = $_POST['grade'];
-    } elseif ($exam === "기타") {
-        $details = $_POST['details'];
-        $score = $_POST['score'];
-    }*/
-	if ($exam === "토익" || $exam === "토익스피킹") {
+
+    if ($exam === "토익" || $exam === "토익스피킹") {
         $score       = $_POST['score']       ?? '';
         $improvement = $_POST['improvement'] ?? '';
     } elseif ($exam === "HSK" || $exam === "JLPT") {
@@ -78,11 +59,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_exam'])) {
         $score   = $_POST['score']   ?? '';
         $details = $_POST['details'] ?? '';
     }
-	 // language_exams 테이블 구조: (id, student_id, exam, score, improvement, grade, details, date, file_path)
-    // id는 AUTO_INCREMENT이므로 제외하고 삽입.
+
     $sql = "INSERT INTO language_exams (student_id, exam, score, improvement, grade, details, date, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-	$stmt = $conn->prepare($sql); //12.30 01:45
+    $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssssssss",
         $student_id,
         $exam,
@@ -92,8 +72,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_exam'])) {
         $details,
         $date,
         $file_path
-    ); //12.30 01:45 
-	
+    );
+
     if ($stmt->execute()) {
         $message = "제출이 완료되었습니다.";
     } else {
@@ -113,30 +93,71 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>어학시험 정보 입력</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #4CAF50; }
-        form { margin-bottom: 20px; }
-        label, input, select, textarea { display: block; margin-bottom: 10px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+        h1 {
+            color: #0000FF; /* 파란색 */
+            margin-bottom: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label, input, select, textarea {
+            display: block;
+            margin: 10px auto;
+            width: 90%;
+        }
         input[type="submit"], .button {
             display: inline-block;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
-            text-align: center;
             text-decoration: none;
             outline: none;
             color: #fff;
-            background-color: #4CAF50;
+            background-color: #0000FF; /* 파란색 */
             border: none;
-            border-radius: 15px;
+            border-radius: 5px;
             box-shadow: 0 5px #999;
             margin-right: 10px;
         }
-        input[type="submit"]:hover, .button:hover {background-color: #3e8e41}
+        input[type="submit"]:hover, .button:hover {
+            background-color: #000099; /* 어두운 파란색 */
+        }
         input[type="submit"]:active, .button:active {
-            background-color: #3e8e41;
+            background-color: #000099;
             box-shadow: 0 2px #666;
             transform: translateY(4px);
+        }
+        .top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .top-right-link a {
+            text-decoration: none;
+            color: #0000FF;
+            font-size: 16px;
+        }
+        .top-right-link a:hover {
+            text-decoration: underline;
+            color: #000099;
         }
     </style>
     <script>
@@ -150,67 +171,71 @@ $conn->close();
     </script>
 </head>
 <body>
-    <h1>어학시험 정보 입력</h1>
-    <?php
-    if ($message) {
-        echo "<p>$message</p>";
-        echo "<button class='button' onclick=\"location.href='select_category.php'\">홈으로</button>";
-    } else {
-    ?>
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-        <label for="exam">항목:</label>
-        <select id="exam" name="exam" onchange="handleExamChange()" required>
-            <option value="">선택하세요</option>
-            <option value="토익">토익</option>
-            <option value="토익스피킹">토익스피킹</option>
-            <option value="HSK">HSK</option>
-            <option value="JLPT">JLPT</option>
-            <option value="기타">기타</option>
-        </select>
-
-        <div id="scoreDiv" style="display:none;">
-            <label for="score">점수:</label>
-            <input type="number" id="score" name="score">
-        </div>
-
-        <div id="improvementDiv" style="display:none;">
-            <label for="improvement">전 학기 대비 향상 점수:</label>
-            <input type="number" id="improvement" name="improvement">
-        </div>
-
-        <div id="gradeDiv" style="display:none;">
-            <label for="grade">등급:</label>
-            <select id="grade" name="grade">
+    <div class="top-right-link">
+        <a href="select_category.php" aria-label="홈으로 돌아가기">홈으로</a>
+    </div>
+    <div class="container">
+        <h1>어학시험 정보 입력</h1>
+        <?php
+        if ($message) {
+            echo "<p>$message</p>";
+            echo "<button class='button' onclick=\"location.href='select_category.php'\">홈으로</button>";
+        } else {
+        ?>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+            <label for="exam">항목:</label>
+            <select id="exam" name="exam" onchange="handleExamChange()" required>
                 <option value="">선택하세요</option>
-                <option value="1급">1급</option>
-                <option value="2급">2급</option>
-                <option value="3급">3급</option>
-                <option value="4급">4급</option>
-                <option value="5급">5급</option>
-                <option value="6급">6급</option>
-                <option value="N1">N1</option>
-                <option value="N2">N2</option>
-                <option value="N3">N3</option>
-                <option value="N4">N4</option>
-                <option value="N5">N5</option>
+                <option value="토익">토익</option>
+                <option value="토익스피킹">토익스피킹</option>
+                <option value="HSK">HSK</option>
+                <option value="JLPT">JLPT</option>
+                <option value="기타">기타</option>
             </select>
-        </div>
 
-        <div id="detailsDiv" style="display:none;">
-            <label for="details">상세내용:</label>
-            <textarea id="details" name="details" rows="4"></textarea>
-        </div>
-		
-		<label for="date">응시일자:</label>
-        <input type="date" id="date" name="date" required><br>
+            <div id="scoreDiv" style="display:none;">
+                <label for="score">점수:</label>
+                <input type="number" id="score" name="score">
+            </div>
 
-        <label for="file">증빙자료:</label>
-        <input type="file" id="file" name="file">
+            <div id="improvementDiv" style="display:none;">
+                <label for="improvement">전 학기 대비 향상 점수:</label>
+                <input type="number" id="improvement" name="improvement">
+            </div>
 
-        <input type="submit" name="submit_exam" value="제출">
-        <button type="button" class="button" onclick="location.href='select_category.php'">홈으로</button>
-    </form>
-    <?php } ?>
+            <div id="gradeDiv" style="display:none;">
+                <label for="grade">등급:</label>
+                <select id="grade" name="grade">
+                    <option value="">선택하세요</option>
+                    <option value="1급">1급</option>
+                    <option value="2급">2급</option>
+                    <option value="3급">3급</option>
+                    <option value="4급">4급</option>
+                    <option value="5급">5급</option>
+                    <option value="6급">6급</option>
+                    <option value="N1">N1</option>
+                    <option value="N2">N2</option>
+                    <option value="N3">N3</option>
+                    <option value="N4">N4</option>
+                    <option value="N5">N5</option>
+                </select>
+            </div>
+
+            <div id="detailsDiv" style="display:none;">
+                <label for="details">상세내용:</label>
+                <textarea id="details" name="details" rows="4"></textarea>
+            </div>
+
+            <label for="date">응시일자:</label>
+            <input type="date" id="date" name="date" required><br>
+
+            <label for="file">증빙자료:</label>
+            <input type="file" id="file" name="file">
+
+            <input type="submit" name="submit_exam" value="제출">
+        </form>
+        <?php } ?>
+    </div>
 </body>
 </html>

@@ -1,54 +1,49 @@
 <?php
 session_start();
 if (!isset($_SESSION['student_id'])) {
-    header("Location: login.php"); // 세션이 없으면 로그인 페이지로 이동
+    header("Location: login.php");
     exit;
 }
 
-// 디버깅용 에러 출력 활성화
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// CSRF 토큰 생성
+
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// MySQL 연결 설정
 $servername = "localhost";
 $username = "root";
 $password = "1234";
 $dbname = "GhHj";
 $port = 3306;
 
-// 데이터베이스 연결
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
 $conn->set_charset("utf8mb4");
 
-// 연결 확인
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
 $message = '';
-$show_form = true; // 입력 폼 표시 여부
+$show_form = true;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // CSRF 토큰 검증
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
     }
 
-    // 사용자 입력 값 가져오기 및 유효성 검사
-    $student_id = (string) $_SESSION['student_id']; // 세션에서 학생 ID 가져오기
+    $student_id = (string) $_SESSION['student_id'];
     $result = isset($_POST['result']) ? trim($_POST['result']) : '';
     $grade = isset($_POST['grade']) ? trim($_POST['grade']) : '';
     $totalScore = isset($_POST['totalScore']) ? (int)$_POST['totalScore'] : 0;
     $improvementScore = isset($_POST['improvementScore']) ? (int)$_POST['improvementScore'] : 0;
     $date = date('Y-m-d');
 
-    // 필수 값 검증
     $valid_results = ['정기 합격', '1차 추가 합격', '2차 추가 합격', '3차 추가 합격', '4차 추가 합격', '불합격'];
     $valid_grades = ['골드', '실버', '특급', '1급', '2급', '3급'];
 
@@ -57,7 +52,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $totalScore <= 0 || $improvementScore < 0) {
         $message = "";
     } else {
-        // 데이터 삽입
         $sql = "INSERT INTO physical_tests (student_id, result, grade, total_score, improvement_score, date) 
                 VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
@@ -66,9 +60,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_param("sssiss", $student_id, $result, $grade, $totalScore, $improvementScore, $date);
             if ($stmt->execute()) {
                 $message = "제출이 완료되었습니다.";
-                $show_form = false; // 성공적으로 제출되면 폼을 숨김
+                $show_form = false;
             } else {
-                if ($conn->errno === 1062) { // 중복 입력 에러
+                if ($conn->errno === 1062) {
                     $message = "이미 제출된 데이터가 있습니다.";
                 } else {
                     $message = "오류: " . $stmt->error;

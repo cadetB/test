@@ -1,15 +1,15 @@
 <?php
 session_start();
-// ───── 기존 자동 리다이렉트 삭제 또는 주석 처리 ─────
-//if (isset($_SESSION['student_id'])) {
-//    header("Location: select_category.php");
-//    exit;
-//} // 12.30 01:37 로그인 이후 지인용 입력하고 나서, 다시 index.php 로 이동하여 로그인 버튼 눌었을 때 자동 로그인되는 현상 방지 
-
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+// 로그인 페이지로 돌아올 경우 세션 초기화
+if (isset($_SESSION['student_id'])) {
+    session_unset();
+    session_destroy();
+    session_start();
+}
 
 // CSRF 토큰 생성
 if (!isset($_SESSION['csrf_token'])) {
@@ -18,7 +18,6 @@ if (!isset($_SESSION['csrf_token'])) {
 
 $error_message = "";
 
-// MySQL 연결 설정
 $servername = "localhost";
 $username = "root";
 $password = "1234";
@@ -29,51 +28,50 @@ $port = 3306;
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
 $conn->set_charset("utf8mb4");
 
-// 연결 확인
 if ($conn->connect_error) {
     die("데이터베이스 연결 실패: " . $conn->connect_error);
 }
 
-// 로그인 처리
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // CSRF 토큰 검증
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
     }
 
-    if (isset($_POST['action'])) {
-        if ($_POST['action'] === "login") {
-            $student_id = $_POST['student_id'] ?? '';
-            $password = $_POST['password'] ?? '';
+    if (isset($_POST['action']) && $_POST['action'] === "login") {
+        $student_id = $_POST['student_id'] ?? '';
+        $password = $_POST['password'] ?? '';
 
-            // 교번으로 사용자 확인
-            $stmt = $conn->prepare("SELECT student_id, name, password, role FROM users WHERE student_id = ?");
-            if (!$stmt) {
-                die("쿼리 준비 실패: " . $conn->error);
-            }
-            $stmt->bind_param("s", $student_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows === 1) {
-                $user = $result->fetch_assoc();
-                if ($password === $user['password']) {  // 직접 비교 방식
-                    $_SESSION['student_id'] = $user['student_id'];
-                    $_SESSION['name'] = $user['name'];
-                    $_SESSION['role'] = $user['role'];
-                    header("Location: select_category.php");
-                    exit();
-                } else {
-                    $error_message = "비밀번호가 일치하지 않습니다.";
-                }
-            } else {
-                $error_message = "등록되지 않은 교번입니다.";
-            }
-            $stmt->close();
-        } elseif ($_POST['action'] === "register") {
-            header("Location: index.php");
-            exit();
+        $stmt = $conn->prepare("SELECT student_id, name, password, role FROM users WHERE student_id = ?");
+        if (!$stmt) {
+            die("쿼리 준비 실패: " . $conn->error);
         }
+        $stmt->bind_param("s", $student_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 1) {
+            $user = $result->fetch_assoc();
+            if ($password === $user['password']) {
+                $_SESSION['student_id'] = $user['student_id'];
+                $_SESSION['name'] = $user['name'];
+                $_SESSION['role'] = $user['role'];
+
+                if ($user['role'] === '관리자') {
+                    header("Location: view_someone.php");
+                } else {
+                    header("Location: select_category.php");
+                }
+                exit();
+            } else {
+                $error_message = "비밀번호가 일치하지 않습니다.";
+            }
+        } else {
+            $error_message = "등록되지 않은 교번입니다.";
+        }
+        $stmt->close();
+    } elseif (isset($_POST['action']) && $_POST['action'] === "register") {
+        header("Location: index.php");
+        exit();
     }
 }
 
@@ -87,11 +85,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로그인</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px;
-            background-color: #f4f4f4;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
         .container {
             max-width: 400px;
             margin: 50px auto;
@@ -101,53 +95,45 @@ $conn->close();
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         h1 { 
-            color: #4CAF50; 
-            text-align: center;
-            margin-bottom: 30px;
+            color: #0000FF; 
+            text-align: center; 
+            margin-bottom: 30px; 
         }
-        form { 
-            max-width: 400px; 
-            margin: auto; 
-        }
-        label { 
-            display: block; 
-            margin: 10px 0 5px;
-            color: #333;
-        }
+        form { max-width: 400px; margin: auto; }
+        label { display: block; margin: 10px 0 5px; color: #333; }
         input { 
             width: 100%; 
             padding: 8px; 
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            margin-bottom: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
         }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
+        .button-group { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 20px; 
         }
         button { 
-            flex: 1;
+            flex: 1; 
             padding: 10px 20px; 
-            background-color: #4CAF50; 
+            background-color: #0000FF; 
             color: white; 
             border: none; 
-            border-radius: 4px;
+            border-radius: 4px; 
             cursor: pointer; 
         }
         button:hover { 
-            background-color: #45a049; 
+            background-color: #000099; 
         }
         .error { 
-            color: red;
-            text-align: center;
-            margin-bottom: 15px;
+            color: red; 
+            text-align: center; 
+            margin-bottom: 15px; 
         }
     </style>
 </head>
 <body>  
-<!-- 12.30 01:26 : 로그인 페이지에서 회원가입 페이지 index.php로 넘어갈 수 있게 수정 -->
     <div class="container">
         <h1>로그인</h1>
         <?php if ($error_message): ?>

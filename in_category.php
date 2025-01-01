@@ -5,12 +5,10 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-// CSRF 토큰 생성
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// 오류 처리 함수
 function handleError($errno, $errstr) {
     error_log("Error: [$errno] $errstr");
     echo "<p style='color: red;'>죄송합니다. 오류가 발생했습니다. 관리자에게 문의해주세요.</p>";
@@ -18,7 +16,6 @@ function handleError($errno, $errstr) {
 
 set_error_handler("handleError");
 
-// 데이터베이스 연결은 필요한 경우에만 수행
 function getDatabaseConnection() {
     $servername = "localhost";
     $username = "root";
@@ -59,7 +56,7 @@ function getDatabaseConnection() {
             text-align: center;
         }
         h1 { 
-            color: #4CAF50; 
+            color: #0000FF; /* 파란색 */
             margin-bottom: 30px;
         }
         .button-group {
@@ -70,7 +67,7 @@ function getDatabaseConnection() {
         }
         button { 
             padding: 15px 40px; 
-            background-color: #4CAF50; 
+            background-color: #0000FF; /* 파란색 */
             color: white; 
             border: none; 
             border-radius: 4px;
@@ -78,7 +75,21 @@ function getDatabaseConnection() {
             font-size: 16px;
         }
         button:hover { 
-            background-color: #45a049; 
+            background-color: #000099; /* 어두운 파란색 */
+        }
+        .top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .top-right-link a {
+            text-decoration: none;
+            color: #0000FF;
+            font-size: 16px;
+        }
+        .top-right-link a:hover {
+            text-decoration: underline;
+            color: #000099;
         }
         @media (max-width: 600px) {
             .button-group {
@@ -88,6 +99,9 @@ function getDatabaseConnection() {
     </style>
 </head>
 <body>
+    <div class="top-right-link">
+        <a href="select_category.php" aria-label="홈으로 돌아가기">홈으로</a>
+    </div>
     <div class="container">
         <h1>인 분야 활동 입력</h1>
         <div class="button-group">
@@ -104,10 +118,6 @@ function getDatabaseConnection() {
                 <button type="submit" aria-label="소모임 입력">소모임</button>
             </form>
         </div>
-        <form action="select_category.php">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-            <button type="submit" aria-label="홈으로 돌아가기">홈으로</button>
-        </form>
     </div>
 </body>
 </html>

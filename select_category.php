@@ -1,11 +1,16 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['student_id'])) {
     header("Location: login.php");
     exit;
 }
 
-// MySQL 연결 설정
+// 브라우저 캐시 방지
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 $servername = "localhost";
 $username = "root";
 $password = "1234";
@@ -33,7 +38,7 @@ $port = 3306;
             text-align: center;
         }
         h1 { 
-            color: #4CAF50; 
+            color: #0000FF; 
             margin-bottom: 30px;
         }
         .button-group {
@@ -44,7 +49,7 @@ $port = 3306;
         }
         button { 
             padding: 15px 40px; 
-            background-color: #4CAF50; 
+            background-color: #0000FF; 
             color: white; 
             border: none; 
             border-radius: 4px;
@@ -52,13 +57,32 @@ $port = 3306;
             font-size: 16px;
         }
         button:hover { 
-            background-color: #45a049; 
+            background-color: #000099; 
+        }
+        .top-right-links {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+        }
+        .top-right-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #0000FF;
+        }
+        .top-right-links a:hover {
+            text-decoration: underline;
+            color: #000099;
         }
     </style>
 </head>
 <body>
+    <div class="top-right-links">
+        <a href="view_records.php">조회</a>
+        <a href="logout.php">로그아웃</a>
+    </div>
     <div class="container">
-        <h1>활동 분야 선택</h1>
+        <h1>분야 선택</h1>
         <div class="button-group">
             <form action="ji_category.php" method="POST">
                 <button type="submit">지</button>
@@ -68,14 +92,6 @@ $port = 3306;
             </form>
             <form action="yong_category.php" method="POST">
                 <button type="submit">용</button>
-            </form>
-        </div>
-        <div class="button-group">
-            <form action="view_records.php" method="GET"> <!-- GET 요청으로 변경 -->
-    			<button type="submit">조회</button>
-			</form>
-            <form action="logout.php" method="POST">
-                <button type="submit">로그아웃</button>
             </form>
         </div>
     </div>
