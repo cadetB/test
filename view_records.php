@@ -111,7 +111,10 @@ $conn->close();
     <title>활동 기록 조회</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
-        h1 { color: #0000FF; }
+        h1 { 
+            color: #0000FF; 
+            text-align: center; /* 가운데 정렬 */
+        }
         h2 { color: #0000FF; }
         h3 { color: #0000FF; }
         table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }

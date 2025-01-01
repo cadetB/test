@@ -67,6 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 $conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -76,41 +77,68 @@ $conn->close();
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         h1 {
-            color: #4CAF50;
+            color: #0000FF;
+            text-align: center;
+            margin-bottom: 20px;
         }
-        form {
-            margin-top: 20px;
-        }
-        label, input, select, textarea {
+        label, select, textarea, input[type="date"], input[type="file"] {
             display: block;
-            margin-top: 10px;
-        }
-        input[type="text"], input[type="date"], input[type="file"], select, textarea {
-            width: 100%;
-            padding: 5px;
-            margin-top: 5px;
-        }
-        input[type="submit"], .button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
+            width: 90%;
+            margin: 10px auto;
             font-size: 16px;
         }
-        input[type="submit"]:hover, .button:hover {
-            background-color: #45a049;
+        textarea {
+            height: 20px;
+            resize: none;
         }
-        .error {
-            color: red;
+        input[type="file"] {
+            border: none; /* 네모 테두리 제거 */
+            padding: 0;
         }
-        .message {
-            margin-top: 20px;
-            font-weight: bold;
+        input[type="submit"] {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #0000FF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #000099;
+        }
+        .top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .top-right-link a {
+            text-decoration: none;
+            color: #0000FF;
+            font-size: 16px;
+        }
+        .top-right-link a:hover {
+            color: #000099;
+            text-decoration: underline;
         }
     </style>
     <script>
@@ -129,46 +157,50 @@ $conn->close();
     </script>
 </head>
 <body>
-    <h1>독서활동</h1>
-    <?php if (!empty($message)): ?>
-        <p class="message <?php echo strpos($message, 'Error') !== false ? 'error' : ''; ?>">
-            <?php echo htmlspecialchars($message); ?>
-        </p>
-        <?php if (strpos($message, '완료') !== false): ?>
-            <a href="select_category.php" class="button">홈으로</a>
-        <?php endif; ?>
-    <?php else: ?>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+    <div class="top-right-link">
+        <a href="select_category.php">홈으로</a>
+    </div>
+    <div class="container">
+        <h1>독서활동</h1>
+        <?php if (!empty($message)): ?>
+            <p class="message <?php echo strpos($message, 'Error') !== false ? 'error' : ''; ?>">
+                <?php echo htmlspecialchars($message); ?>
+            </p>
+            <?php if (strpos($message, '완료') !== false): ?>
+                <a href="select_category.php" class="button">홈으로</a>
+            <?php endif; ?>
+        <?php else: ?>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
-            <label for="activity_type">항목:</label>
-            <select id="activity_type" name="activity_type" required>
-                <option value="" disabled selected>선택하세요</option>
-                <option value="독서프로그램">독서프로그램</option>
-                <option value="독후감 대회">독후감 대회</option>
-            </select>
-
-            <div id="awardField" style="display:none;">
-                <label for="award">수상:</label>
-                <select id="award" name="award">
-                    <option value="">선택하세요</option>
-                    <option value="영내 입상">영내 입상</option>
-                    <option value="대외 입상">대외 입상</option>
+                <label for="activity_type">항목:</label>
+                <select id="activity_type" name="activity_type" required>
+                    <option value="" disabled selected>선택하세요</option>
+                    <option value="독서프로그램">독서프로그램</option>
+                    <option value="독후감 대회">독후감 대회</option>
                 </select>
-            </div>
 
-            <label for="details">상세내용:</label>
-            <textarea id="details" name="details" rows="4" required></textarea>
+                <div id="awardField" style="display:none;">
+                    <label for="award">수상:</label>
+                    <select id="award" name="award">
+                        <option value="">선택하세요</option>
+                        <option value="영내 입상">영내 입상</option>
+                        <option value="대외 입상">대외 입상</option>
+                    </select>
+                </div>
 
-            <label for="date">참여일자:</label>
-            <input type="date" id="date" name="date" required>
+                <label for="details">상세내용:</label>
+                <textarea id="details" name="details" required></textarea>
 
-            <label for="file">증빙자료:</label>
-            <input type="file" id="file" name="file">
+                <label for="date">참여일자:</label>
+                <input type="date" id="date" name="date" required>
 
-            <input type="submit" value="제출">
-        </form>
-        <a href="select_category.php" class="button">홈으로</a>
-    <?php endif; ?>
+                <label for="file">증빙자료:</label>
+                <input type="file" id="file" name="file">
+
+                <input type="submit" value="제출">
+            </form>
+        <?php endif; ?>
+    </div>
 </body>
 </html>

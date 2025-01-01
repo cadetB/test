@@ -75,18 +75,71 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($student_id); ?> 기록 조회</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
-        h1 { color: #4CAF50; }
-        h2 { color: #45a049; }
-        h3 { color: #4CAF50; }
-        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #4CAF50; color: white; }
-        .button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
-        .button:hover { background-color: #3e8e41; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f9f9f9; 
+        }
+        h1 { 
+            color: #0000FF; 
+            text-align: center; 
+            margin-bottom: 20px; 
+        }
+        h2 { 
+            color: #0000FF; 
+            margin-top: 20px; 
+        }
+        h3 { 
+            color: #0000FF; 
+        }
+        table { 
+            border-collapse: collapse; 
+            width: 100%; 
+            margin-bottom: 20px; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #0000FF; 
+            color: white; 
+        }
+        .button { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            background-color: #0000FF; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            text-decoration: none; 
+            cursor: pointer; 
+        }
+        .button:hover { 
+            background-color: #000099; 
+        }
+        .top-right-link { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+        }
+        .top-right-link a { 
+            text-decoration: none; 
+            color: #0000FF; 
+            font-size: 16px; 
+        }
+        .top-right-link a:hover { 
+            color: #000099; 
+            text-decoration: underline; 
+        }
     </style>
 </head>
 <body>
+    <div class="top-right-link">
+        <a href="view_someone.php">홈으로</a>
+    </div>
     <h1><?php echo htmlspecialchars($student_id); ?>님의 기록</h1>
 
     <?php foreach ($categories as $category): ?>
@@ -121,7 +174,6 @@ $conn->close();
             <?php endif; ?>
         <?php endforeach; ?>
     <?php endforeach; ?>
-
-    <a href="view_someone.php" class="button">홈으로</a>
 </body>
 </html>
+
