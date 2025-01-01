@@ -149,6 +149,13 @@ $conn->close();
             text-decoration: underline;
         }
     </style>
+    <script>
+        function handleSubmit(event) {
+            event.preventDefault();
+            alert("제출이 완료되었습니다.");
+            window.location.href = "select_category.php";
+        }
+    </script>
 </head>
 <body>
     <div class="top-right-link">
@@ -159,34 +166,29 @@ $conn->close();
 
         <?php if (!empty($message)): ?>
             <p><?php echo htmlspecialchars($message); ?></p>
-            <?php if (!$show_form): ?>
-                <a href="select_category.php" class="button">홈으로</a>
-            <?php endif; ?>
         <?php endif; ?>
 
-        <?php if ($show_form): ?>
-            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" onsubmit="handleSubmit(event)">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
-                <label for="activity_type">항목:</label>
-                <select id="activity_type" name="activity_type" required>
-                    <option value="" disabled selected>선택하세요</option>
-                    <option value="휴일 프로그램">휴일 프로그램</option>
-                    <option value="소모임">소모임</option>
-                </select>
+            <label for="activity_type">항목:</label>
+            <select id="activity_type" name="activity_type" required>
+                <option value="" disabled selected>선택하세요</option>
+                <option value="휴일 프로그램">휴일 프로그램</option>
+                <option value="소모임">소모임</option>
+            </select>
 
-                <label for="details">상세내용:</label>
-                <textarea id="details" name="details" required></textarea>
+            <label for="details">상세내용:</label>
+            <textarea id="details" name="details" required></textarea>
 
-                <label for="date">참여일자:</label>
-                <input type="date" id="date" name="date" required>
+            <label for="date">참여일자:</label>
+            <input type="date" id="date" name="date" required>
 
-                <label for="file">증빙자료:</label>
-                <input type="file" id="file" name="file">
+            <label for="file">증빙자료:</label>
+            <input type="file" id="file" name="file">
 
-                <input type="submit" value="제출">
-            </form>
-        <?php endif; ?>
+            <input type="submit" value="제출">
+        </form>
     </div>
 </body>
 </html>

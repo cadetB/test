@@ -111,18 +111,47 @@ $conn->close();
     <title>활동 기록 조회</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
-        h1 { color: #4CAF50; }
-        h2 { color: #45a049; }
-        h3 { color: #4CAF50; }
+        h1 { color: #0000FF; }
+        h2 { color: #0000FF; }
+        h3 { color: #0000FF; }
         table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #4CAF50; color: white; }
-        .button { display: inline-block; padding: 10px 20px; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 15px; text-decoration: none; margin-top: 20px; cursor: pointer; }
-        .button:hover { background-color: #3e8e41; }
+        th { background-color: #0000FF; color: white; }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0000FF;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            text-decoration: none;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .button:hover { background-color: #000099; }
         .delete-button { color: red; cursor: pointer; }
+        .top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .top-right-link a {
+            text-decoration: none;
+            color: #0000FF;
+            font-size: 16px;
+        }
+        .top-right-link a:hover {
+            color: #000099;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+    <div class="top-right-link">
+        <a href="select_category.php">홈으로</a>
+    </div>
+
     <h1><?php echo htmlspecialchars($student_name); ?>님의 활동 기록</h1>
     <?php if ($message): ?>
         <p><?php echo htmlspecialchars($message); ?></p>
@@ -172,6 +201,5 @@ $conn->close();
     <form action="view_records.php" method="get">
         <button type="submit" name="action" value="download" class="button">다운로드</button>
     </form>
-    <a href="select_category.php" class="button">홈으로</a>
 </body>
 </html>
