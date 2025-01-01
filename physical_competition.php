@@ -93,19 +93,69 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>대회참여</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #4CAF50; }
-        form { margin-bottom: 20px; }
-        label, input, select, textarea { display: block; margin-bottom: 10px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 650px; /* 좌우 규격 */
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        h1 {
+            color: #0000FF; /* 파란색 */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label, select, textarea, input[type="date"], input[type="file"] {
+            display: block;
+            width: 92%; /* 좌우 규격 */
+            margin: 10px auto;
+            font-size: 16px;
+        }
+        textarea {
+            height: 20px; /* 크기 조정 */
+            resize: none;
+        }
         input[type="submit"], .button {
             display: inline-block;
+            margin: 10px auto;
             padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
+            background-color: #0000FF; /* 파란색 */
             color: white;
             border: none;
             border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #000099; /* 어두운 파란색 */
+        }
+        .top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .top-right-link a {
+            text-decoration: none;
+            color: #0000FF; /* 파란색 */
+            font-size: 16px;
+        }
+        .top-right-link a:hover {
+            text-decoration: underline;
+            color: #000099; /* 어두운 파란색 */
+        }
+        #categoryDiv {
+            display: none;
         }
     </style>
     <script>
@@ -117,12 +167,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </script>
 </head>
 <body>
-    <h1>대회참여</h1>
-    <?php if ($message): ?>
-        <p><?php echo htmlspecialchars($message); ?></p>
-    <?php endif; ?>
+    <!-- 우측 상단 '홈으로' 링크 -->
+    <div class="top-right-link">
+        <a href="select_category.php">홈으로</a>
+    </div>
 
-    <?php if ($show_form): ?>
+    <div class="container">
+        <h1>대회참여</h1>
+
+        <?php if (!empty($message)): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
+
+        <?php if ($show_form): ?>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
@@ -134,7 +191,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <option value="트라이애슬론">트라이애슬론</option>
             </select>
 
-            <div id="categoryDiv" style="display:none;">
+            <div id="categoryDiv">
                 <label for="category">종목:</label>
                 <select id="category" name="category">
                     <option value="">선택하세요</option>
@@ -146,7 +203,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <label for="details">상세내용:</label>
-            <textarea id="details" name="details" rows="4" required></textarea>
+            <textarea id="details" name="details" required></textarea>
 
             <label for="date">참여일자:</label>
             <input type="date" id="date" name="date" required>
@@ -155,10 +212,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <input type="file" id="file" name="file">
 
             <input type="submit" value="제출">
-			<a href="select_category.php" class="button">홈으로</a>
         </form>
-    <?php endif; ?>
+        <?php endif; ?>
+    </div>
 </body>
 </html>
-
-

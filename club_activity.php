@@ -86,70 +86,67 @@ $conn->close();
         body {
             font-family: Arial, sans-serif;
             margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             background-color: #f4f4f4;
         }
         .container {
             max-width: 600px;
-            margin: 50px auto;
             padding: 20px;
             background-color: white;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            text-align: center;
+            position: relative;
         }
         h1 {
             color: #0000FF;
-            margin-bottom: 30px;
+            text-align: center;
+            margin-bottom: 20px;
         }
-        form {
-            margin-top: 20px;
-        }
-        label {
+        label, select, textarea, input[type="date"], input[type="file"] {
             display: block;
-            margin-top: 10px;
-            color: #000;
+            width: 90%;
+            margin: 10px auto;
+            font-size: 16px;
         }
-        input[type="text"], input[type="date"], input[type="file"], select, textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        textarea {
+            height: 20px;
+            resize: none;
         }
-        input[type="submit"], .button {
+        input[type="file"] {
+            border: none; /* 네모 테두리 제거 */
+            padding: 0;
+        }
+        input[type="submit"] {
             display: inline-block;
-            margin-top: 20px;
+            margin-top: 10px;
             padding: 10px 20px;
             background-color: #0000FF;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
-            text-decoration: none;
+            text-align: center;
             font-size: 16px;
-            border-radius: 4px;
         }
-        input[type="submit"]:hover, .button:hover {
+        input[type="submit"]:hover {
             background-color: #000099;
         }
         .top-right-link {
             position: absolute;
             top: 20px;
             right: 20px;
-            font-size: 14px;
         }
         .top-right-link a {
             text-decoration: none;
             color: #0000FF;
+            font-size: 16px;
         }
         .top-right-link a:hover {
             color: #000099;
             text-decoration: underline;
-        }
-        .success {
-            color: green;
-        }
-        .error {
-            color: red;
         }
     </style>
 </head>
@@ -161,9 +158,7 @@ $conn->close();
         <h1>소모임 & 휴일프로그램</h1>
 
         <?php if (!empty($message)): ?>
-            <p class="<?php echo strpos($message, '완료') !== false ? 'success' : 'error'; ?>">
-                <?php echo htmlspecialchars($message); ?>
-            </p>
+            <p><?php echo htmlspecialchars($message); ?></p>
             <?php if (!$show_form): ?>
                 <a href="select_category.php" class="button">홈으로</a>
             <?php endif; ?>
@@ -181,7 +176,7 @@ $conn->close();
                 </select>
 
                 <label for="details">상세내용:</label>
-                <textarea id="details" name="details" rows="4" required></textarea>
+                <textarea id="details" name="details" required></textarea>
 
                 <label for="date">참여일자:</label>
                 <input type="date" id="date" name="date" required>

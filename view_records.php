@@ -28,9 +28,40 @@ $student_id = $_SESSION['student_id'];
 $student_name = $_SESSION['name'];
 $message = "";
 
+// 삭제 요청 처리
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_table'], $_POST['delete_id'])) {
+    $delete_table = $_POST['delete_table'];
+    $delete_id = (int)$_POST['delete_id']; // 정수형 변환
+
+    // 테이블 이름 유효성 확인
+    $valid_tables = [
+        'language_exams', 'certifications', 'academic_conferences',
+        'reading_activities', 'dops', 'club_activities',
+        'physical_tests', 'physical_certifications', 'physical_competitions'
+    ];
+
+    if (in_array($delete_table, $valid_tables)) {
+        $sql = "DELETE FROM $delete_table WHERE id = ? AND student_id = ?";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("is", $delete_id, $student_id);
+            if ($stmt->execute()) {
+                $message = "";
+            } else {
+                $message = "기록 삭제 실패: " . $stmt->error;
+            }
+            $stmt->close();
+        } else {
+            $message = "SQL 오류: " . $conn->error;
+        }
+    } else {
+        $message = "유효하지 않은 테이블입니다.";
+    }
+}
+
 // 사용자 친화적인 열 이름
 $column_names = [
-    'language_exams' => ['exam' => '시험', 'score' => '점수', 'improvement' => '향상점수', 'date' => '응시일자', 'file_path' => '증빙자료'],
+    'language_exams' => ['exam' => '시험', 'score' => '점수', 'improvement' => '향상점수', 'grade' => '등급', 'date' => '응시일자', 'file_path' => '증빙자료'],
     'certifications' => ['certification' => '자격증', 'date' => '취득일자', 'file_path' => '증빙자료'],
     'academic_conferences' => ['conference_type' => '대회', 'award' => '수상여부', 'details' => '세부내용', 'date' => '참여일자', 'file_path' => '증빙자료'],
     'reading_activities' => ['activity_type' => '활동', 'details' => '세부내용', 'date' => '참여일자', 'file_path' => '증빙자료'],
@@ -48,45 +79,6 @@ $tables = [
     '인' => ['reading_activities' => '독서활동', 'dops' => 'DOP 활동', 'club_activities' => '소모임'],
     '용' => ['physical_tests' => '체력검정', 'physical_certifications' => '체육자격증', 'physical_competitions' => '대회참여']
 ];
-
-// CSV 다운로드 처리
-if (isset($_GET['action']) && $_GET['action'] === 'download') {
-    header('Content-Type: text/csv; charset=utf-8');
-    header("Content-Disposition: attachment; filename=\"{$student_name}.csv\"");
-
-    $output = fopen('php://output', 'w');
-    foreach ($categories as $category) {
-        fputcsv($output, [$category . " 분야"]);
-        foreach ($tables[$category] as $table => $display_name) {
-            fputcsv($output, [$display_name]); // 활동명
-            $column_headers = array_values($column_names[$table]); // 열 헤더
-            unset($column_headers[array_search('증빙자료', $column_headers)]); // 증빙자료 열 제외
-            fputcsv($output, $column_headers);
-
-            $sql = "SELECT * FROM $table WHERE student_id = ? ORDER BY date DESC";
-            $stmt = $conn->prepare($sql);
-            if ($stmt) {
-                $stmt->bind_param("s", $student_id);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                while ($row = $result->fetch_assoc()) {
-                    $row_data = [];
-                    foreach ($column_names[$table] as $key => $value) {
-                        if ($value !== '증빙자료') {
-                            $row_data[] = $row[$key] ?? 'N/A';
-                        }
-                    }
-                    fputcsv($output, $row_data);
-                }
-                $stmt->close();
-            }
-            fputcsv($output, []); // 빈 줄 추가
-        }
-    }
-    fclose($output);
-    exit;
-}
 
 // 데이터 가져오기
 $records = [];
@@ -132,6 +124,9 @@ $conn->close();
 </head>
 <body>
     <h1><?php echo htmlspecialchars($student_name); ?>님의 활동 기록</h1>
+    <?php if ($message): ?>
+        <p><?php echo htmlspecialchars($message); ?></p>
+    <?php endif; ?>
 
     <?php foreach ($categories as $category): ?>
         <h2><?php echo htmlspecialchars($category); ?> 분야</h2>

@@ -75,7 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit_exam'])) {
     );
 
     if ($stmt->execute()) {
-        $message = "제출이 완료되었습니다.";
+        echo "<script>alert('제출이 완료되었습니다.'); window.location.href = 'select_category.php';</script>";
+        exit;
     } else {
         $message = "Error: " . $stmt->error;
     }
@@ -123,7 +124,7 @@ $conn->close();
             margin: 10px auto;
             width: 90%;
         }
-        input[type="submit"], .button {
+        input[type="submit"] {
             display: inline-block;
             padding: 10px 20px;
             font-size: 16px;
@@ -135,12 +136,11 @@ $conn->close();
             border: none;
             border-radius: 5px;
             box-shadow: 0 5px #999;
-            margin-right: 10px;
         }
-        input[type="submit"]:hover, .button:hover {
+        input[type="submit"]:hover {
             background-color: #000099; /* 어두운 파란색 */
         }
-        input[type="submit"]:active, .button:active {
+        input[type="submit"]:active {
             background-color: #000099;
             box-shadow: 0 2px #666;
             transform: translateY(4px);
@@ -176,12 +176,7 @@ $conn->close();
     </div>
     <div class="container">
         <h1>어학시험 정보 입력</h1>
-        <?php
-        if ($message) {
-            echo "<p>$message</p>";
-            echo "<button class='button' onclick=\"location.href='select_category.php'\">홈으로</button>";
-        } else {
-        ?>
+        <?php if (!$message): ?>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <label for="exam">항목:</label>
@@ -235,7 +230,7 @@ $conn->close();
 
             <input type="submit" name="submit_exam" value="제출">
         </form>
-        <?php } ?>
+        <?php endif; ?>
     </div>
 </body>
 </html>

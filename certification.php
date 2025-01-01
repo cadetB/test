@@ -22,8 +22,6 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$message = "";
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
@@ -32,10 +30,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $certification = isset($_POST['certification']) ? trim($_POST['certification']) : "";
     $date = $_POST['date'];
     $student_id = $_SESSION['student_id'];
-    
-    if (empty(trim($certification))) {
-        $error = "자격증 이름을 입력하세요.";
-    } else { 
+
+    if (!empty(trim($certification))) { 
         $file_path = "";
         if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
             $target_dir = "uploads/";
@@ -45,27 +41,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $target_file = $target_dir . basename($_FILES["file"]["name"]);
             if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
                 $file_path = $target_file;
-                error_log("파일 업로드 성공: " . $file_path);
-            } else {
-                error_log("파일 업로드 실패");
             }
-        } else {
-            error_log("파일 업로드 오류 코드: " . $_FILES['file']['error']);    
         }
 
         $sql = "INSERT INTO certifications (student_id, certification, date, file_path) VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssss", $student_id, $certification, $date, $file_path);
 
-        error_log("SQL 실행: student_id=$student_id, certification=$certification, date=$date, file_path=$file_path");
         if ($stmt->execute()) {
-            $message = "제출이 완료되었습니다.";
+            echo "<script>alert('제출이 완료되었습니다.'); window.location.href = 'select_category.php';</script>";
+            exit;
         } else {
-            $message = "Error: " . $stmt->error;    
-            error_log("SQL 에러: " . $stmt->error);
+            echo "<script>alert('제출 실패: " . htmlspecialchars($stmt->error) . "');</script>";
         }
         $stmt->close();
-    }       
+    } else {
+        echo "<script>alert('자격증 이름을 입력하세요.');</script>";
+    }
 }
 
 $conn->close();
@@ -142,25 +134,20 @@ $conn->close();
     </div>
     <div class="container">
         <h1>자격증 정보 입력</h1>
-        <?php if ($message): ?>
-            <p><?php echo htmlspecialchars($message); ?></p>
-            <a href="select_category.php" class="button">홈으로</a>
-        <?php else: ?>
-            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                
-                <label for="certification">자격증:</label>
-                <input type="text" id="certification" name="certification" required>
-                
-                <label for="date">취득일자:</label>
-                <input type="date" id="date" name="date" required>
-                
-                <label for="file">증빙 자료:</label> 
-                <input type="file" id="file" name="file">
-                
-                <input type="submit" value="제출">
-            </form>
-        <?php endif; ?>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+            
+            <label for="certification">자격증:</label>
+            <input type="text" id="certification" name="certification" required>
+            
+            <label for="date">취득일자:</label>
+            <input type="date" id="date" name="date" required>
+            
+            <label for="file">증빙 자료:</label> 
+            <input type="file" id="file" name="file">
+            
+            <input type="submit" name="submit_certification" value="제출">
+        </form>
     </div>
 </body>
 </html>

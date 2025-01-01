@@ -25,7 +25,6 @@ if ($conn->connect_error) {
 $message = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // CSRF 토큰 검증
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF 토큰 검증 실패");
     }
@@ -60,7 +59,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ssssss", $student_id, $conference_type, $details, $date, $award, $file_path);
 
         if ($stmt->execute()) {
-            $message = "제출이 완료되었습니다.";
+            echo "<script>alert('제출이 완료되었습니다.'); window.location.href = 'select_category.php';</script>";
+            exit;
         } else {
             $message = "Error: " . $stmt->error;
         }
@@ -106,11 +106,15 @@ $conn->close();
             margin: 10px auto;
             font-size: 16px;
         }
+        textarea {
+            height: 20px;
+            resize: none;
+        }
         input[type="submit"], .button {
             display: inline-block;
             margin: 10px 5px;
             padding: 10px 20px;
-            background-color: #0000FF; /* 파란색 */
+            background-color: #0000FF;
             color: white;
             border: none;
             cursor: pointer;
@@ -119,7 +123,7 @@ $conn->close();
             border-radius: 5px;
         }
         input[type="submit"]:hover, .button:hover {
-            background-color: #000099; /* 어두운 파란색 */
+            background-color: #000099;
         }
         .top-right-link {
             position: absolute;
@@ -156,12 +160,7 @@ $conn->close();
     <div class="container">
         <h1>학술대회 정보 입력</h1>
         <?php if ($message): ?>
-            <p class="<?php echo strpos($message, 'Error') !== false ? 'error' : ''; ?>">
-                <?php echo htmlspecialchars($message); ?>
-            </p>
-            <?php if (strpos($message, '완료') !== false): ?>
-                <a href="select_category.php" class="button">홈으로</a>
-            <?php endif; ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
         <?php endif; ?>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
@@ -184,7 +183,7 @@ $conn->close();
             </div>
 
             <label for="details">상세내용:</label>
-            <textarea id="details" name="details" rows="4" required></textarea>
+            <textarea id="details" name="details" rows="1" required></textarea>
 
             <label for="date">응시일자:</label>
             <input type="date" id="date" name="date" required>

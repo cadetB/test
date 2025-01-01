@@ -87,65 +87,106 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자기개발활동 - 체육자격증</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #4CAF50; }
-        form { margin-bottom: 20px; }
-        label, input, select, textarea { display: block; margin-bottom: 10px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 650px; /* 좌우 규격 */
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        h1 {
+            color: #0000FF; /* 파란색 */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label, select, textarea, input[type="date"], input[type="file"] {
+            display: block;
+            width: 92%; /* 좌우 규격 */
+            margin: 10px auto;
+            font-size: 16px;
+        }
+        textarea {
+            height: 20px; /* 크기 조정 */
+            resize: none;
+        }
         input[type="submit"], .button {
             display: inline-block;
+            margin: 10px auto;
             padding: 10px 20px;
-            font-size: 16px;
+            background-color: #0000FF; /* 파란색 */
+            color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
             text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px #999;
+            font-size: 16px;
         }
-        input[type="submit"]:hover, .button:hover {background-color: #3e8e41}
-        input[type="submit"]:active, .button:active {
-            background-color: #3e8e41;
-            box-shadow: 0 2px #666;
-            transform: translateY(4px);
+        input[type="submit"]:hover {
+            background-color: #000099; /* 어두운 파란색 */
+        }
+        .top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .top-right-link a {
+            text-decoration: none;
+            color: #0000FF; /* 파란색 */
+            font-size: 16px;
+        }
+        .top-right-link a:hover {
+            text-decoration: underline;
+            color: #000099; /* 어두운 파란색 */
         }
     </style>
 </head>
 <body>
-    <h1>체육자격증</h1>
-    <?php
-    if ($message) {
-        echo "<p>" . htmlspecialchars($message) . "</p>";
-        if (!$show_form) {
-            echo "<a href='select_category.php' class='button'>홈으로</a>";
-        }
-    }
-    if ($show_form) {
-    ?>
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+    <div class="top-right-link">
+        <a href="select_category.php">홈으로</a>
+    </div>
+    <div class="container">
+        <h1>체육자격증</h1>
 
-        <label for="certification_type">항목:</label>
-        <select id="certification_type" name="certification_type" required>
-            <option value="" disabled selected>선택하세요</option>
-            <option value="무도 단증">무도 단증</option>
-            <option value="기타 체육 자격증">기타 체육 자격증</option>
-        </select>
+        <?php if (!empty($message)): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+            <?php if (!$show_form): ?>
+                <a href="select_category.php" class="button">홈으로</a>
+            <?php endif; ?>
+        <?php endif; ?>
 
-        <label for="details">상세내용:</label>
-        <textarea id="details" name="details" rows="4" required></textarea>
+        <?php if ($show_form): ?>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
-        <label for="date">취득일자:</label>
-        <input type="date" id="date" name="date" required>
+            <label for="certification_type">항목:</label>
+            <select id="certification_type" name="certification_type" required>
+                <option value="" disabled selected>선택하세요</option>
+                <option value="무도 단증">무도 단증</option>
+                <option value="기타 체육 자격증">기타 체육 자격증</option>
+            </select>
 
-        <label for="file">증빙자료:</label>
-        <input type="file" id="file" name="file">
+            <label for="details">상세내용:</label>
+            <textarea id="details" name="details" required></textarea>
 
-        <input type="submit" value="제출">
-        <a href="select_category.php" class="button">홈으로</a>
-    </form>
-    <?php } ?>
+            <label for="date">취득일자:</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="file">증빙자료:</label>
+            <input type="file" id="file" name="file">
+
+            <input type="submit" value="제출">
+        </form>
+        <?php endif; ?>
+    </div>
 </body>
 </html>
