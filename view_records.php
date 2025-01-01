@@ -28,7 +28,6 @@ $student_id = $_SESSION['student_id'];
 $student_name = $_SESSION['name'];
 $message = "";
 
-// 삭제 요청 처리
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_table'], $_POST['delete_id'])) {
     $delete_table = $_POST['delete_table'];
     $delete_id = (int)$_POST['delete_id']; // 정수형 변환
@@ -80,6 +79,46 @@ $tables = [
     '용' => ['physical_tests' => '체력검정', 'physical_certifications' => '체육자격증', 'physical_competitions' => '대회참여']
 ];
 
+// 엑셀 다운로드 처리
+if (isset($_GET['action']) && $_GET['action'] === 'download') {
+    header('Content-Type: text/csv; charset=utf-8');
+    header("Content-Disposition: attachment; filename=\"{$student_name}.csv\"");
+
+    $output = fopen('php://output', 'w');
+
+    foreach ($categories as $category) {
+        fputcsv($output, [$category . " 분야"]);
+        foreach ($tables[$category] as $table => $display_name) {
+            fputcsv($output, [$display_name]);
+            $columns = array_diff(array_values($column_names[$table]), ['증빙자료']);
+            fputcsv($output, $columns);
+
+            $sql = "SELECT * FROM $table WHERE student_id = ? ORDER BY date DESC";
+            $stmt = $conn->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param("s", $student_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                while ($row = $result->fetch_assoc()) {
+                    $row_data = [];
+                    foreach ($column_names[$table] as $key => $value) {
+                        if ($value !== '증빙자료') {
+                            $row_data[] = $row[$key] ?? '';
+                        }
+                    }
+                    fputcsv($output, $row_data);
+                }
+                $stmt->close();
+            }
+            fputcsv($output, []); // 빈 줄 추가
+        }
+    }
+
+    fclose($output);
+    exit;
+}
+
 // 데이터 가져오기
 $records = [];
 foreach ($categories as $category) {
@@ -111,10 +150,7 @@ $conn->close();
     <title>활동 기록 조회</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
-        h1 { 
-            color: #0000FF; 
-            text-align: center; /* 가운데 정렬 */
-        }
+        h1 { color: #0000FF; text-align: center; }
         h2 { color: #0000FF; }
         h3 { color: #0000FF; }
         table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
@@ -156,6 +192,7 @@ $conn->close();
     </div>
 
     <h1><?php echo htmlspecialchars($student_name); ?>님의 활동 기록</h1>
+
     <?php if ($message): ?>
         <p><?php echo htmlspecialchars($message); ?></p>
     <?php endif; ?>
@@ -179,11 +216,11 @@ $conn->close();
                             <?php foreach ($column_names[$table] as $key => $value): ?>
                                 <td>
                                     <?php if ($key === 'file_path' && !empty($row[$key])): ?>
-                                        <a href="<?php echo htmlspecialchars($row[$key]); ?>" download>다운로드</a>
+                                        <a href="<?php echo htmlspecialchars($row[$key]); ?>" download>증빙자료</a>
                                     <?php elseif ($key === 'file_path'): ?>
                                         없음
                                     <?php else: ?>
-                                        <?php echo htmlspecialchars($row[$key]); ?>
+                                        <?php echo htmlspecialchars($row[$key] ?? ''); ?>
                                     <?php endif; ?>
                                 </td>
                             <?php endforeach; ?>
