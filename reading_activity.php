@@ -161,6 +161,19 @@ $conn->close();
         }
         input[type="submit"]:hover {
             background-color: #000099;
+        }.top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .top-right-link a {
+            text-decoration: none;
+            color: #0000FF;
+            font-size: 16px;
+        }
+        .top-right-link a:hover {
+            color: #000099;
+            text-decoration: underline;
         }
     </style>
     <script>
@@ -179,6 +192,9 @@ $conn->close();
     </script>
 </head>
 <body>
+	<div class="top-right-link">
+        <a href="select_category.php">홈으로</a>
+    </div>
     <div class="container">
         <h1>독서활동</h1>
         <?php if (!empty($message)): ?>
