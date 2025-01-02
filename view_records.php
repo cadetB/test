@@ -82,7 +82,7 @@ $tables = [
 // 엑셀 다운로드 처리
 if (isset($_GET['action']) && $_GET['action'] === 'download') {
     header('Content-Type: text/csv; charset=utf-8');
-    header("Content-Disposition: attachment; filename=\"{$student_name}.csv\"");
+    header("Content-Disposition: attachment; filename=\"{$student_id}_{$student_name}.csv\"");
 
     $output = fopen('php://output', 'w');
 

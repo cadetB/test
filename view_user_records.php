@@ -6,10 +6,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== '관리자') {
     exit;
 }
 
-if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-    die("CSRF 토큰 검증 실패");
+// CSRF 토큰 생성 (세션에 저장)
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// MySQL 연결 설정
 $servername = "localhost";
 $username = "root";
 $password = "1234";
@@ -23,7 +25,12 @@ if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 }
 
-$student_id = $_POST['student_id'] ?? '';
+// 세션 또는 GET 파라미터에서 student_id 가져오기
+if (isset($_POST['student_id'])) {
+    $_SESSION['student_id'] = $_POST['student_id']; // POST 요청 시 세션에 저장
+}
+
+$student_id = $_SESSION['student_id'] ?? '';
 if (empty($student_id)) {
     die("교번을 입력하세요.");
 }
@@ -31,7 +38,7 @@ if (empty($student_id)) {
 // 엑셀 다운로드 처리
 if (isset($_GET['action']) && $_GET['action'] === 'download') {
     header('Content-Type: text/csv; charset=utf-8');
-    header("Content-Disposition: attachment; filename=\"{$student_name}.csv\"");
+    header("Content-Disposition: attachment; filename=\"{$student_id}_{$student_name}.csv\"");
 
     $output = fopen('php://output', 'w');
 
@@ -87,6 +94,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'download') {
 }
 
 // 기존 데이터 가져오기 코드
+$records = [];
 $categories = ['지', '인', '용'];
 $tables = [
     '지' => ['language_exams' => '어학시험', 'certifications' => '자격증', 'academic_conferences' => '학술대회'],
@@ -105,7 +113,6 @@ $column_names = [
     'physical_competitions' => ['competition' => '대회', 'details' => '세부내용', 'date' => '참여일자', 'file_path' => '증빙자료']
 ];
 
-$records = [];
 foreach ($categories as $category) {
     $records[$category] = [];
     foreach ($tables[$category] as $table => $display_name) {
@@ -134,65 +141,18 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($student_id); ?> 기록 조회</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 20px; 
-            background-color: #f9f9f9; 
-        }
-        h1 { 
-            color: #0000FF; 
-            text-align: center; 
-            margin-bottom: 20px; 
-        }
-        h2 { 
-            color: #0000FF; 
-            margin-top: 20px; 
-        }
-        h3 { 
-            color: #0000FF; 
-        }
-        table { 
-            border-collapse: collapse; 
-            width: 100%; 
-            margin-bottom: 20px; 
-        }
-        th, td { 
-            border: 1px solid #ddd; 
-            padding: 8px; 
-            text-align: left; 
-        }
-        th { 
-            background-color: #0000FF; 
-            color: white; 
-        }
-        .button { 
-            display: inline-block; 
-            padding: 10px 20px; 
-            background-color: #0000FF; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            text-decoration: none; 
-            cursor: pointer; 
-        }
-        .button:hover { 
-            background-color: #000099; 
-        }
-        .top-right-link { 
-            position: absolute; 
-            top: 20px; 
-            right: 20px; 
-        }
-        .top-right-link a { 
-            text-decoration: none; 
-            color: #0000FF; 
-            font-size: 16px; 
-        }
-        .top-right-link a:hover { 
-            color: #000099; 
-            text-decoration: underline; 
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f9f9f9; }
+        h1 { color: #0000FF; text-align: center; margin-bottom: 20px; }
+        h2 { color: #0000FF; margin-top: 20px; }
+        h3 { color: #0000FF; margin-bottom: 10px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #0000FF; color: white; }
+        .button { display: inline-block; padding: 10px 20px; background-color: #0000FF; color: white; text-decoration: none; border-radius: 4px; margin-top: 20px; }
+        .button:hover { background-color: #000099; }
+        .top-right-link { position: absolute; top: 20px; right: 20px; }
+        .top-right-link a { text-decoration: none; color: #0000FF; }
+        .top-right-link a:hover { color: #000099; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -201,6 +161,7 @@ $conn->close();
     </div>
     <h1><?php echo htmlspecialchars($student_id); ?>님의 기록</h1>
 
+    <!-- 기록 표시 -->
     <?php foreach ($categories as $category): ?>
         <h2><?php echo htmlspecialchars($category); ?> 분야</h2>
         <?php foreach ($records[$category] as $table => $rows): ?>
@@ -234,6 +195,7 @@ $conn->close();
         <?php endforeach; ?>
     <?php endforeach; ?>
 
+    <!-- 엑셀 다운로드 버튼 -->
     <form action="view_user_records.php" method="get">
         <button type="submit" name="action" value="download" class="button">다운로드</button>
     </form>
