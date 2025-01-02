@@ -6,8 +6,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== '관리자') {
     exit;
 }
 
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    die("CSRF 토큰 검증 실패");
 }
 
 $servername = "localhost";
@@ -23,44 +23,70 @@ if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 }
 
-$student_id = $_POST['student_id'] ?? $_GET['student_id'] ?? '';
+$student_id = $_POST['student_id'] ?? '';
 if (empty($student_id)) {
     die("교번을 입력하세요.");
 }
 
-$message = "";
+// 엑셀 다운로드 처리
+if (isset($_GET['action']) && $_GET['action'] === 'download') {
+    header('Content-Type: text/csv; charset=utf-8');
+    header("Content-Disposition: attachment; filename=\"{$student_name}.csv\"");
 
-// 삭제 요청 처리
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_table'], $_POST['delete_id'])) {
-    $delete_table = $_POST['delete_table'];
-    $delete_id = (int)$_POST['delete_id']; // 정수형 변환
+    $output = fopen('php://output', 'w');
 
-    // 테이블 이름 유효성 확인
-    $valid_tables = [
-        'language_exams', 'certifications', 'academic_conferences',
-        'reading_activities', 'dops', 'club_activities',
-        'physical_tests', 'physical_certifications', 'physical_competitions'
+    $categories = ['지', '인', '용'];
+    $tables = [
+        '지' => ['language_exams' => '어학시험', 'certifications' => '자격증', 'academic_conferences' => '학술대회'],
+        '인' => ['reading_activities' => '독서활동', 'dops' => 'DOP 활동', 'club_activities' => '소모임'],
+        '용' => ['physical_tests' => '체력검정', 'physical_certifications' => '체육자격증', 'physical_competitions' => '대회참여']
+    ];
+    $column_names = [
+        'language_exams' => ['exam' => '시험', 'score' => '점수', 'improvement' => '향상점수', 'date' => '응시일자', 'file_path' => '증빙자료'],
+        'certifications' => ['certification' => '자격증', 'date' => '취득일자', 'file_path' => '증빙자료'],
+        'academic_conferences' => ['conference_type' => '대회', 'award' => '수상 여부', 'details' => '세부내용', 'date' => '참여일자', 'file_path' => '증빙자료'],
+        'reading_activities' => ['activity_type' => '활동', 'details' => '세부내용', 'date' => '참여일자', 'file_path' => '증빙자료'],
+        'dops' => ['type' => '활동', 'details' => '세부내용', 'participation_hours' => '참여시간', 'selection' => 'DOP생도 선정', 'date' => '참여일자', 'file_path' => '증빙자료'],
+        'club_activities' => ['activity_type' => '소모임', 'details' => '세부내용', 'date' => '참여일자', 'file_path' => '증빙자료'],
+        'physical_tests' => ['result' => '합불여부', 'grade' => '등급', 'total_score' => '총점', 'improvement_score' => '향상점수', 'file_path' => '증빙자료'],
+        'physical_certifications' => ['certification' => '자격증', 'details' => '세부내용', 'date' => '취득일자', 'file_path' => '증빙자료'],
+        'physical_competitions' => ['competition' => '대회', 'details' => '세부내용', 'date' => '참여일자', 'file_path' => '증빙자료']
     ];
 
-    if (in_array($delete_table, $valid_tables)) {
-        $sql = "DELETE FROM $delete_table WHERE id = ? AND student_id = ?";
-        $stmt = $conn->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param("is", $delete_id, $student_id);
-            if ($stmt->execute()) {
-                $message = "기록이 성공적으로 삭제되었습니다.";
-            } else {
-                $message = "기록 삭제 실패: " . $stmt->error;
+    foreach ($categories as $category) {
+        fputcsv($output, [$category . " 분야"]);
+        foreach ($tables[$category] as $table => $display_name) {
+            fputcsv($output, [$display_name]);
+            $columns = array_diff(array_values($column_names[$table]), ['증빙자료']);
+            fputcsv($output, $columns);
+
+            $sql = "SELECT * FROM $table WHERE student_id = ? ORDER BY date DESC";
+            $stmt = $conn->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param("s", $student_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                while ($row = $result->fetch_assoc()) {
+                    $row_data = [];
+                    foreach ($column_names[$table] as $key => $value) {
+                        if ($value !== '증빙자료') {
+                            $row_data[] = $row[$key] ?? '';
+                        }
+                    }
+                    fputcsv($output, $row_data);
+                }
+                $stmt->close();
             }
-            $stmt->close();
-        } else {
-            $message = "SQL 오류: " . $conn->error;
+            fputcsv($output, []); // 빈 줄 추가
         }
-    } else {
-        $message = "유효하지 않은 테이블입니다.";
     }
+
+    fclose($output);
+    exit;
 }
 
+// 기존 데이터 가져오기 코드
 $categories = ['지', '인', '용'];
 $tables = [
     '지' => ['language_exams' => '어학시험', 'certifications' => '자격증', 'academic_conferences' => '학술대회'],
@@ -167,10 +193,6 @@ $conn->close();
             color: #000099; 
             text-decoration: underline; 
         }
-        .delete-button {
-            color: red;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -178,10 +200,6 @@ $conn->close();
         <a href="view_someone.php">홈으로</a>
     </div>
     <h1><?php echo htmlspecialchars($student_id); ?>님의 기록</h1>
-
-    <?php if (!empty($message)): ?>
-        <p><?php echo htmlspecialchars($message); ?></p>
-    <?php endif; ?>
 
     <?php foreach ($categories as $category): ?>
         <h2><?php echo htmlspecialchars($category); ?> 분야</h2>
@@ -195,7 +213,6 @@ $conn->close();
                         <?php foreach ($column_names[$table] as $key => $value): ?>
                             <th><?php echo htmlspecialchars($value); ?></th>
                         <?php endforeach; ?>
-                        <th>삭제</th>
                     </tr>
                     <?php foreach ($rows as $row): ?>
                         <tr>
@@ -210,19 +227,15 @@ $conn->close();
                                     <?php endif; ?>
                                 </td>
                             <?php endforeach; ?>
-                            <td>
-                                <form action="" method="post" style="display:inline;">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                    <input type="hidden" name="delete_table" value="<?php echo htmlspecialchars($table); ?>">
-                                    <input type="hidden" name="delete_id" value="<?php echo htmlspecialchars($row['id']); ?>">
-                                    <button type="submit" class="delete-button">삭제</button>
-                                </form>
-                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
             <?php endif; ?>
         <?php endforeach; ?>
     <?php endforeach; ?>
+
+    <form action="view_user_records.php" method="get">
+        <button type="submit" name="action" value="download" class="button">다운로드</button>
+    </form>
 </body>
 </html>

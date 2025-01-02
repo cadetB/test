@@ -85,7 +85,11 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로그인</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f4f4f4; 
+        }
         .container {
             max-width: 400px;
             margin: 50px auto;
@@ -99,8 +103,15 @@ $conn->close();
             text-align: center; 
             margin-bottom: 30px; 
         }
-        form { max-width: 400px; margin: auto; }
-        label { display: block; margin: 10px 0 5px; color: #333; }
+        form { 
+            max-width: 400px; 
+            margin: auto; 
+        }
+        label { 
+            display: block; 
+            margin: 10px 0 5px; 
+            color: #333; 
+        }
         input { 
             width: 100%; 
             padding: 8px; 
@@ -131,9 +142,33 @@ $conn->close();
             text-align: center; 
             margin-bottom: 15px; 
         }
+        .top-right-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .top-right-link a {
+            text-decoration: none;
+            color: #0000FF;
+            font-size: 16px;
+        }
+        .top-right-link a:hover {
+            color: #000099;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>  
+    <!-- 회원가입 링크 -->
+    <div class="top-right-link">
+        <form method="POST" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+            <button type="submit" name="action" value="register" style="background: none; border: none; color: #0000FF; cursor: pointer; font-size: 16px; padding: 0;">
+                회원가입
+            </button>
+        </form>
+    </div>
+
     <div class="container">
         <h1>로그인</h1>
         <?php if ($error_message): ?>
@@ -150,12 +185,6 @@ $conn->close();
 			<div class="button-group">	
             	<button type="submit" name="action" value="login">로그인</button>
 			</div>
-        </form>
-		<form method="POST" style="margin-top:20px;">
-			<input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-            <div class="button-group">
-                <button type="submit" name="action" value="register">회원가입</button>
-            </div>
         </form>
     </div>
 </body>
