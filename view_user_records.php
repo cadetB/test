@@ -6,12 +6,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== '관리자') {
     exit;
 }
 
-// CSRF 토큰 생성 (세션에 저장)
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// MySQL 연결 설정
+
 $servername = "localhost";
 $username = "root";
 $password = "1234";
@@ -25,9 +25,9 @@ if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 }
 
-// 세션 또는 GET 파라미터에서 student_id 가져오기
+
 if (isset($_POST['student_id'])) {
-    $_SESSION['student_id'] = $_POST['student_id']; // POST 요청 시 세션에 저장
+    $_SESSION['student_id'] = $_POST['student_id'];
 }
 
 $student_id = $_SESSION['student_id'] ?? '';
@@ -35,7 +35,7 @@ if (empty($student_id)) {
     die("교번을 입력하세요.");
 }
 
-// 엑셀 다운로드 처리
+
 if (isset($_GET['action']) && $_GET['action'] === 'download') {
     header('Content-Type: text/csv; charset=utf-8');
     header("Content-Disposition: attachment; filename=\"{$student_id}_{$student_name}.csv\"");
@@ -85,7 +85,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'download') {
                 }
                 $stmt->close();
             }
-            fputcsv($output, []); // 빈 줄 추가
+            fputcsv($output, []);
         }
     }
 
@@ -93,7 +93,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'download') {
     exit;
 }
 
-// 기존 데이터 가져오기 코드
+
 $records = [];
 $categories = ['지', '인', '용'];
 $tables = [
@@ -161,7 +161,7 @@ $conn->close();
     </div>
     <h1><?php echo htmlspecialchars($student_id); ?>님의 기록</h1>
 
-    <!-- 기록 표시 -->
+    
     <?php foreach ($categories as $category): ?>
         <h2><?php echo htmlspecialchars($category); ?> 분야</h2>
         <?php foreach ($records[$category] as $table => $rows): ?>
@@ -195,7 +195,7 @@ $conn->close();
         <?php endforeach; ?>
     <?php endforeach; ?>
 
-    <!-- 엑셀 다운로드 버튼 -->
+    
     <form action="view_user_records.php" method="get">
         <button type="submit" name="action" value="download" class="button">다운로드</button>
     </form>

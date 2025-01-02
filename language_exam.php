@@ -113,7 +113,7 @@ $conn->close();
             position: relative;
         }
         h1 {
-            color: #0000FF; /* 파란색 */
+            color: #0000FF;
             margin-bottom: 20px;
         }
         form {
@@ -132,13 +132,13 @@ $conn->close();
             text-decoration: none;
             outline: none;
             color: #fff;
-            background-color: #0000FF; /* 파란색 */
+            background-color: #0000FF;
             border: none;
             border-radius: 5px;
             box-shadow: 0 5px #999;
         }
         input[type="submit"]:hover {
-            background-color: #000099; /* 어두운 파란색 */
+            background-color: #000099;
         }
         input[type="submit"]:active {
             background-color: #000099;

@@ -87,12 +87,12 @@ $conn->close();
             text-align: center;
         }
         h1 {
-            color: #0000FF; /* 파란색 */
+            color: #0000FF;
             margin-bottom: 20px;
         }
         label {
             display: block;
-            text-align: left; /* 왼쪽 정렬 */
+            text-align: left;
             margin: 10px auto;
             width: 90%;
         }
@@ -104,7 +104,7 @@ $conn->close();
         input[type="submit"], .button {
             display: inline-block;
             padding: 10px 20px;
-            background-color: #0000FF; /* 파란색 */
+            background-color: #0000FF;
             color: white;
             border: none;
             cursor: pointer;
@@ -114,7 +114,7 @@ $conn->close();
             text-decoration: none;
         }
         input[type="submit"]:hover, .button:hover {
-            background-color: #000099; /* 어두운 파란색 */
+            background-color: #000099;
         }
         .top-right-link {
             position: absolute;

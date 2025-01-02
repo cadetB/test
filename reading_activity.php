@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $file_type = pathinfo($target_file, PATHINFO_EXTENSION);
 
                 $allowed_types = ['jpg', 'jpeg', 'png', 'pdf'];
-                $max_file_size = 2 * 1024 * 1024; // 2MB 제한
+                $max_file_size = 2 * 1024 * 1024;
 
                 if (!in_array(strtolower($file_type), $allowed_types)) {
                     $message = "허용되지 않는 파일 형식입니다. (허용: jpg, jpeg, png, pdf)";
@@ -71,7 +71,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 }
             }
         } elseif (isset($_FILES['file'])) {
-            // 업로드 실패 원인 출력
             switch ($_FILES['file']['error']) {
                 case UPLOAD_ERR_INI_SIZE:
                 case UPLOAD_ERR_FORM_SIZE:

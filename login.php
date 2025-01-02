@@ -4,14 +4,13 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 로그인 페이지로 돌아올 경우 세션 초기화
 if (isset($_SESSION['student_id'])) {
     session_unset();
     session_destroy();
     session_start();
 }
 
-// CSRF 토큰 생성
+
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -24,7 +23,6 @@ $password = "1234";
 $dbname = "GhHj";
 $port = 3306;
 
-// 데이터베이스 연결
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
 $conn->set_charset("utf8mb4");
 
@@ -159,7 +157,6 @@ $conn->close();
     </style>
 </head>
 <body>  
-    <!-- 회원가입 링크 -->
     <div class="top-right-link">
         <form method="POST" style="display:inline;">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">

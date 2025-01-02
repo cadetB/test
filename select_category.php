@@ -6,7 +6,6 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-// 브라우저 캐시 방지
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");

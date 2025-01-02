@@ -92,7 +92,7 @@ $conn->close();
             background-color: #f4f4f4;
         }
         .container {
-            max-width: 650px; /* 좌우 규격 약간 늘림 */
+            max-width: 650px;
             padding: 20px;
             background-color: white;
             border-radius: 5px;
@@ -100,13 +100,13 @@ $conn->close();
             position: relative;
         }
         h1 {
-            color: #0000FF; /* 파란색 */
+            color: #0000FF;
             text-align: center;
             margin-bottom: 20px;
         }
         label, select, input[type="number"] {
             display: block;
-            width: 92%; /* 좌우 규격 확장 */
+            width: 92%;
             margin: 10px auto;
             font-size: 16px;
         }
@@ -114,7 +114,7 @@ $conn->close();
             display: inline-block;
             margin: 10px auto;
             padding: 10px 20px;
-            background-color: #0000FF; /* 파란색 */
+            background-color: #0000FF;
             color: white;
             border: none;
             border-radius: 5px;
@@ -123,7 +123,7 @@ $conn->close();
             font-size: 16px;
         }
         input[type="submit"]:hover {
-            background-color: #000099; /* 어두운 파란색 */
+            background-color: #000099;
         }
         input[type="submit"]:active {
             background-color: #000099;
@@ -137,12 +137,12 @@ $conn->close();
         }
         .top-right-link a {
             text-decoration: none;
-            color: #0000FF; /* 파란색 */
+            color: #0000FF;
             font-size: 16px;
         }
         .top-right-link a:hover {
             text-decoration: underline;
-            color: #000099; /* 어두운 파란색 */
+            color: #000099;
         }
     </style>
 </head>

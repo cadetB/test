@@ -107,12 +107,12 @@ $conn->close();
             display: block;
             width: 90%;
             margin: 5px auto 15px;
-            font-size: 14px; /* 글자 크기 조정 */
+            font-size: 14px;
             padding: 5px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
-            height: 20px; /* 높이 20px 유지 */
+            height: 20px;
         }
         textarea {
             resize: none;
@@ -122,9 +122,9 @@ $conn->close();
             display: block;
             width: 90%;
             margin: 5px auto 15px;
-            font-size: 14px; /* 파일 선택 글자 크기 조정 */
+            font-size: 14px;
             padding: 0;
-            border: none; /* 테두리 제거 */
+            border: none;
             box-sizing: border-box;
         }
         input[type="submit"] {

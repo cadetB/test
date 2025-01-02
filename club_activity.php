@@ -112,7 +112,7 @@ $conn->close();
             resize: none;
         }
         input[type="file"] {
-            border: none; /* 네모 테두리 제거 */
+            border: none;
             padding: 0;
         }
         input[type="submit"] {

@@ -8,14 +8,14 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-// MySQL 연결 설정
+
 $servername = "localhost";
 $username = "root";
 $password = "1234";
 $dbname = "GhHj";
 $port = 3306;
 
-// 데이터베이스 연결
+
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
 $conn->set_charset("utf8mb4");
 
@@ -23,16 +23,16 @@ if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 }
 
-// 사용자 정보
+
 $student_id = $_SESSION['student_id'];
 $student_name = $_SESSION['name'];
 $message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_table'], $_POST['delete_id'])) {
     $delete_table = $_POST['delete_table'];
-    $delete_id = (int)$_POST['delete_id']; // 정수형 변환
+    $delete_id = (int)$_POST['delete_id'];
 
-    // 테이블 이름 유효성 확인
+
     $valid_tables = [
         'language_exams', 'certifications', 'academic_conferences',
         'reading_activities', 'dops', 'club_activities',
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_table'], $_POS
     }
 }
 
-// 사용자 친화적인 열 이름
+
 $column_names = [
     'language_exams' => ['exam' => '시험', 'score' => '점수', 'improvement' => '향상점수', 'grade' => '등급', 'date' => '응시일자', 'file_path' => '증빙자료'],
     'certifications' => ['certification' => '자격증', 'date' => '취득일자', 'file_path' => '증빙자료'],
@@ -71,7 +71,7 @@ $column_names = [
     'physical_competitions' => ['competition' => '대회', 'details' => '세부내용', 'date' => '참여일자', 'file_path' => '증빙자료']
 ];
 
-// 분야 및 테이블 정의
+
 $categories = ['지', '인', '용'];
 $tables = [
     '지' => ['language_exams' => '어학시험', 'certifications' => '자격증', 'academic_conferences' => '학술대회'],
@@ -79,7 +79,7 @@ $tables = [
     '용' => ['physical_tests' => '체력검정', 'physical_certifications' => '체육자격증', 'physical_competitions' => '대회참여']
 ];
 
-// 엑셀 다운로드 처리
+
 if (isset($_GET['action']) && $_GET['action'] === 'download') {
     header('Content-Type: text/csv; charset=utf-8');
     header("Content-Disposition: attachment; filename=\"{$student_id}_{$student_name}.csv\"");
@@ -111,7 +111,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'download') {
                 }
                 $stmt->close();
             }
-            fputcsv($output, []); // 빈 줄 추가
+            fputcsv($output, []);
         }
     }
 
@@ -119,7 +119,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'download') {
     exit;
 }
 
-// 데이터 가져오기
+
 $records = [];
 foreach ($categories as $category) {
     $records[$category] = [];

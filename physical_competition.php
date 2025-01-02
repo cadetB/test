@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $date = $_POST['date'] ?? '';
     $file_path = '';
 
-    // 선택되지 않은 경우 category를 null로 처리
+
     if (empty($category)) {
         $category = null;
     }

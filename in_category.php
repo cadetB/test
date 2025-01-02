@@ -56,7 +56,7 @@ function getDatabaseConnection() {
             text-align: center;
         }
         h1 { 
-            color: #0000FF; /* 파란색 */
+            color: #0000FF;
             margin-bottom: 30px;
         }
         .button-group {
@@ -67,7 +67,7 @@ function getDatabaseConnection() {
         }
         button { 
             padding: 15px 40px; 
-            background-color: #0000FF; /* 파란색 */
+            background-color: #0000FF;
             color: white; 
             border: none; 
             border-radius: 4px;
@@ -75,7 +75,7 @@ function getDatabaseConnection() {
             font-size: 16px;
         }
         button:hover { 
-            background-color: #000099; /* 어두운 파란색 */
+            background-color: #000099;
         }
         .top-right-link {
             position: absolute;
