@@ -65,8 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt) {
             $stmt->bind_param("sssss", $student_id, $certification_type, $details, $date, $file_path);
             if ($stmt->execute()) {
-                $message = "제출이 완료되었습니다.";
-                $show_form = false;
+                echo "<script>alert('제출이 완료되었습니다.'); window.location.href = 'select_category.php';</script>";
+                exit;
             } else {
                 $message = "오류: " . $stmt->error;
             }
@@ -97,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background-color: #f4f4f4;
         }
         .container {
-            max-width: 650px; /* 좌우 규격 */
+            max-width: 650px;
             padding: 20px;
             background-color: white;
             border-radius: 5px;
@@ -105,25 +105,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             position: relative;
         }
         h1 {
-            color: #0000FF; /* 파란색 */
+            color: #0000FF;
             text-align: center;
             margin-bottom: 20px;
         }
         label, select, textarea, input[type="date"], input[type="file"] {
             display: block;
-            width: 92%; /* 좌우 규격 */
+            width: 92%;
             margin: 10px auto;
             font-size: 16px;
         }
         textarea {
-            height: 20px; /* 크기 조정 */
+            height: 20px;
             resize: none;
         }
         input[type="submit"], .button {
             display: inline-block;
             margin: 10px auto;
             padding: 10px 20px;
-            background-color: #0000FF; /* 파란색 */
+            background-color: #0000FF;
             color: white;
             border: none;
             border-radius: 5px;
@@ -132,7 +132,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 16px;
         }
         input[type="submit"]:hover {
-            background-color: #000099; /* 어두운 파란색 */
+            background-color: #000099;
         }
         .top-right-link {
             position: absolute;
@@ -141,12 +141,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         .top-right-link a {
             text-decoration: none;
-            color: #0000FF; /* 파란색 */
+            color: #0000FF;
             font-size: 16px;
         }
         .top-right-link a:hover {
             text-decoration: underline;
-            color: #000099; /* 어두운 파란색 */
+            color: #000099;
         }
     </style>
 </head>

@@ -96,7 +96,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             if ($stmt->execute()) {
                 $message = "제출이 완료되었습니다.";
-
+                echo "<script>
+                        alert('제출이 완료되었습니다.');
+                        window.location.href = 'select_category.php';
+                      </script>";
+                exit;
             } else {
                 $message = "Error: " . $stmt->error;
             }
@@ -107,8 +111,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 $conn->close();
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -146,7 +148,7 @@ $conn->close();
             font-size: 16px;
         }
         textarea {
-            height: 60px;
+            height: 20px;
             resize: none;
         }
         input[type="submit"] {
@@ -161,7 +163,8 @@ $conn->close();
         }
         input[type="submit"]:hover {
             background-color: #000099;
-        }.top-right-link {
+        }
+        .top-right-link {
             position: absolute;
             top: 20px;
             right: 20px;
@@ -192,14 +195,14 @@ $conn->close();
     </script>
 </head>
 <body>
-	<div class="top-right-link">
+    <div class="top-right-link">
         <a href="select_category.php">홈으로</a>
     </div>
     <div class="container">
         <h1>독서활동</h1>
         <?php if (!empty($message)): ?>
             <p><?php echo htmlspecialchars($message); ?></p>
-			<?php endif; ?>
+        <?php endif; ?>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 

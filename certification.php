@@ -55,8 +55,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<script>alert('제출 실패: " . htmlspecialchars($stmt->error) . "');</script>";
         }
         $stmt->close();
-    } else {
-        echo "<script>alert('자격증 이름을 입력하세요.');</script>";
     }
 }
 
@@ -92,7 +90,13 @@ $conn->close();
             color: #0000FF; /* 파란색 */
             margin-bottom: 20px;
         }
-        label, input[type="text"], input[type="date"], input[type="file"], .button {
+        label {
+            display: block;
+            text-align: left; /* 왼쪽 정렬 */
+            margin: 10px auto;
+            width: 90%;
+        }
+        input[type="text"], input[type="date"], input[type="file"], .button {
             display: block;
             margin: 10px auto;
             width: 90%;

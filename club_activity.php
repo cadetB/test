@@ -5,10 +5,6 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -61,8 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_param("sssss", $student_id, $activity_type, $details, $date, $file_path);
 
             if ($stmt->execute()) {
-                $message = "제출이 완료되었습니다.";
-                $show_form = false;
+                echo "<script>alert('제출이 완료되었습니다.'); window.location.href = 'select_category.php';</script>";
+                exit;
             } else {
                 $message = "오류: " . $stmt->error;
             }
@@ -149,13 +145,6 @@ $conn->close();
             text-decoration: underline;
         }
     </style>
-    <script>
-        function handleSubmit(event) {
-            event.preventDefault();
-            alert("제출이 완료되었습니다.");
-            window.location.href = "select_category.php";
-        }
-    </script>
 </head>
 <body>
     <div class="top-right-link">
@@ -168,7 +157,7 @@ $conn->close();
             <p><?php echo htmlspecialchars($message); ?></p>
         <?php endif; ?>
 
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" onsubmit="handleSubmit(event)">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
             <label for="activity_type">항목:</label>

@@ -6,8 +6,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== '관리자') {
     exit;
 }
 
-if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-    die("CSRF 토큰 검증 실패");
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 $servername = "localhost";
@@ -23,9 +23,42 @@ if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 }
 
-$student_id = $_POST['student_id'] ?? '';
+$student_id = $_POST['student_id'] ?? $_GET['student_id'] ?? '';
 if (empty($student_id)) {
     die("교번을 입력하세요.");
+}
+
+$message = "";
+
+// 삭제 요청 처리
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_table'], $_POST['delete_id'])) {
+    $delete_table = $_POST['delete_table'];
+    $delete_id = (int)$_POST['delete_id']; // 정수형 변환
+
+    // 테이블 이름 유효성 확인
+    $valid_tables = [
+        'language_exams', 'certifications', 'academic_conferences',
+        'reading_activities', 'dops', 'club_activities',
+        'physical_tests', 'physical_certifications', 'physical_competitions'
+    ];
+
+    if (in_array($delete_table, $valid_tables)) {
+        $sql = "DELETE FROM $delete_table WHERE id = ? AND student_id = ?";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("is", $delete_id, $student_id);
+            if ($stmt->execute()) {
+                $message = "기록이 성공적으로 삭제되었습니다.";
+            } else {
+                $message = "기록 삭제 실패: " . $stmt->error;
+            }
+            $stmt->close();
+        } else {
+            $message = "SQL 오류: " . $conn->error;
+        }
+    } else {
+        $message = "유효하지 않은 테이블입니다.";
+    }
 }
 
 $categories = ['지', '인', '용'];
@@ -134,6 +167,10 @@ $conn->close();
             color: #000099; 
             text-decoration: underline; 
         }
+        .delete-button {
+            color: red;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -141,6 +178,10 @@ $conn->close();
         <a href="view_someone.php">홈으로</a>
     </div>
     <h1><?php echo htmlspecialchars($student_id); ?>님의 기록</h1>
+
+    <?php if (!empty($message)): ?>
+        <p><?php echo htmlspecialchars($message); ?></p>
+    <?php endif; ?>
 
     <?php foreach ($categories as $category): ?>
         <h2><?php echo htmlspecialchars($category); ?> 분야</h2>
@@ -154,6 +195,7 @@ $conn->close();
                         <?php foreach ($column_names[$table] as $key => $value): ?>
                             <th><?php echo htmlspecialchars($value); ?></th>
                         <?php endforeach; ?>
+                        <th>삭제</th>
                     </tr>
                     <?php foreach ($rows as $row): ?>
                         <tr>
@@ -168,6 +210,14 @@ $conn->close();
                                     <?php endif; ?>
                                 </td>
                             <?php endforeach; ?>
+                            <td>
+                                <form action="" method="post" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                    <input type="hidden" name="delete_table" value="<?php echo htmlspecialchars($table); ?>">
+                                    <input type="hidden" name="delete_id" value="<?php echo htmlspecialchars($row['id']); ?>">
+                                    <button type="submit" class="delete-button">삭제</button>
+                                </form>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
@@ -176,4 +226,3 @@ $conn->close();
     <?php endforeach; ?>
 </body>
 </html>
-

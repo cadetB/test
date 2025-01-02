@@ -5,11 +5,9 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
 
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -23,7 +21,6 @@ $port = 3306;
 
 $conn = new mysqli($servername, $username, $password, $dbname, $port);
 $conn->set_charset("utf8mb4");
-
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -59,8 +56,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt) {
             $stmt->bind_param("sssiss", $student_id, $result, $grade, $totalScore, $improvementScore, $date);
             if ($stmt->execute()) {
-                $message = "제출이 완료되었습니다.";
-                $show_form = false;
+                echo "<script>alert('제출이 완료되었습니다.'); window.location.href = 'select_category.php';</script>";
+                exit;
             } else {
                 if ($conn->errno === 1062) {
                     $message = "이미 제출된 데이터가 있습니다.";
