@@ -6,7 +6,7 @@ ini_set('display_errors', 1);
 if (!isset($_SESSION['student_id'])) {
     header("Location: login.php");
     exit;
-}
+} 
 
 
 $servername = "localhost";

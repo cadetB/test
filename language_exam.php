@@ -3,7 +3,7 @@ session_start();
 if (!isset($_SESSION['student_id'])) {
     header("Location: login.php");
     exit;
-}
+} 
 
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

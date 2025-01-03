@@ -9,7 +9,7 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-function handleError($errno, $errstr) {
+function handleError($errno, $errstr) { 
     error_log("Error: [$errno] $errstr");
     echo "<p style='color: red;'>죄송합니다. 오류가 발생했습니다. 관리자에게 문의해주세요.</p>";
 }

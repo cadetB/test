@@ -193,7 +193,7 @@ $conn->close();
                 </table>
             <?php endif; ?>
         <?php endforeach; ?>
-    <?php endforeach; ?>
+    <?php endforeach; ?> 
 
     
     <form action="view_user_records.php" method="get">

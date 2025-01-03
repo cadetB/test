@@ -3,7 +3,7 @@ session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
+ 
 if (isset($_SESSION['student_id'])) {
     session_unset();
     session_destroy();
